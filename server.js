@@ -4,14 +4,11 @@ const app = express()
 const path = require('path')
 const { logger, logEvents } = require('./middleware/logger')
 const errorHandler = require('./middleware/errorHandler')
-const cookieParser = require('cookie-parser')
 const cors = require('cors')
 const corsOptions = require('./config/corsOptions')
 const connectDB = require('./config/dbConn')
 const mongoose = require('mongoose')
 const PORT = process.env.PORT || 3500 //get port from global variables if exists
-
-console.log(process.env.NODE_ENV)
 
 connectDB()
 
@@ -24,8 +21,6 @@ app.use(cors(corsOptions))
 // built-in middleware for the ability to process json's in our app
 app.use(express.json())
 
-// third-party middleware for cookies parsing
-app.use(cookieParser())
 
 // built-in middleware for serving static files like HTML, CSS, images and client-side JavaScript files
 // <=> app.use(express.static('public')); the one in use one is more explicit, the other works because it's relative to where your server file is
@@ -33,7 +28,7 @@ app.use('/', express.static(path.join(__dirname, 'public')))
 
 // buit-in middlware for root handling 
 app.use('/', require('./routes/root'))
-app.use('/users', require('./routes/userRoutes'))
+//app.use('/users', require('./routes/userRoutes'))
 
 app.all('*', (req, res) => { //all pages 
     res.status(404)
