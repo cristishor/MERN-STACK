@@ -1,0 +1,406 @@
+mongoDB
+user: mongoAdmin
+pass: mongoAdmin
+
+MODELS
+1. User {
+    - idUser
+    - username
+    - email
+    - password
+
+    - profile picture 
+    - first name
+    - last name
+    - bio
+    - contact
+
+    - role          // Regular User, Project Manager, and Admin.
+    
+    - projectsOwned[]
+    - projectsInvolved[]
+    - tasksAssigned[]
+    - teamsMembership[]
+
+    - notificationPreferences
+
+    -userDeadlines[]{
+        - deadlineDate
+        - isPermanentShown
+        - isHidden
+    }
+
+    - personalNotes
+
+}
+
+2. Project {
+    - idProject
+    - tasks[]
+    - chapters[]
+    - team
+
+    - title 
+    - description
+    - owner
+    - status{
+        - title
+        - amount
+        - description
+    }
+
+    - buget
+    - costs[]
+    - start
+    - deadline
+
+    - atachements[]
+    - polls[]
+    - activityLog
+
+    - projDeadline
+    - allDeadlines[]{
+        - deadlineDate
+        - isPermanentShown
+        - isHidden
+    }
+
+    .methods
+    - apps Methods (calculators, alarms etc)
+    - getTotalCost
+
+}
+
+3. Task {
+    - idTask
+    - title
+    - description
+    - status        //completed / in progress / not started
+
+    - Project
+    - chapter
+    - Users[]        //provin din project.team? from the project pool
+    // followers? for whom follows the notifications?
+    //- notes[]           //to see what notes are reffering to what task -> for visualisation? or only reffered to by notes?
+
+    - priority
+    - created time
+    - updated time[]
+    - deadline
+    - estimated time
+    - actual time spent (progress)
+    - taskAlarm         //set globally by the Proj Manager, or locally by users for themselves
+    
+    - cost
+    - atachements
+
+    - notes[]
+
+    - taskLines[] {
+        - type
+        - content
+        - status
+        - lineCompletion
+    }
+
+    - openDiscussions: Array
+        <{
+        discussionTitle: string;
+        participants: Array<string>; // List of user IDs participating in the discussion
+        messages: Array 
+            <{
+            messageContent: string;
+            author: string; // User ID of the message sender
+            timestamp: Date;
+            }>;
+        }>;
+
+
+    .Methods:
+    - completion(lines)=Sum(lineCompleted)
+    - 
+
+}
+
+4. Chapter {
+    - idChapter
+    - name
+    - description
+
+    - tasks[]           //one (chapter) to many (tasks)
+    - projects[]        //many (chapters) to one (project)
+    - team[]
+}
+
+5. Team {
+    - idTeam
+}
+
+6 Notification {
+
+}
+
+7. Attachement {
+
+}
+
+8. ActivityLog / History { //NOT YET IMPLEMENTED
+
+}
+
+9. Notes {
+
+    - relatedTask
+    - relatedProject
+
+}
+10. Polls {
+    - idPoll
+    - questions[]
+    - options[]
+    - type          //what object/entity type reffers (task,  note, Attachement)
+    - entityId
+}
+
+11. projCluster {
+
+}
+
+
+OPTIONAL 
+
+- Tag/Label: Allows categorizing tasks and projects using user-defined tags or labels.
+Provides a way to group related tasks together for better organization and searchability.
+
+
+
+
+DESCRIPTION:
+1. User 
+
+    You can create a default "personal space" project for each user, which acts as their personal workspace, where they can store personal notes that are not specifically linked to any project. (proj cluster)
+
+    
+
+    
+2. Project
+
+3. Task
+    A "Task" is a fundamental entity within the project management app that represents a specific piece of work that needs to be completed as part of a project. Each task is associated with certain attributes, including a title, description, status, due date, estimated time, actual time spent, financial information, and assigned team members.
+
+    Open Discussion Section:
+    The "open discussion" feature can be represented as part of the "Task" model.
+    You can add a new property to the "Task" model to represent the open discussions. Let's call this property openDiscussions, which will be an array of objects to store the details of each open discussion.
+    Each object in the openDiscussions array can include properties such as discussionTitle, participants, messages (an array of message objects), and other relevant data.
+    When the first person starts an open discussion, a new object is added to the openDiscussions array for that specific task.
+    The messages array inside each open discussion object can store the individual messages with properties like messageContent, author, and timestamp.
+    Users can interact with the open discussion section by adding new messages to the messages array.
+
+
+4. Chapter
+    Having a separate "Chapter" model can be beneficial if you need to manage and organize groups of tasks with common themes or goals. It allows you to create higher-level structures that contain related tasks. Chapters can be useful for providing better project organization and categorization, making it easier for users to navigate through large projects.
+
+    With this model, you can create chapters and assign tasks to them within a project. The tasks array in the Chapter model provides a way to store the ObjectIds of tasks that are part of the chapter. Whenever you need to retrieve all tasks within a chapter, you can use these references to fetch the corresponding tasks from the Task collection.
+
+5. 
+
+
+6. Notification 
+    Represents notifications sent to users regarding task updates, project changes, or other important events.
+    Helps users stay informed about the progress and changes in their projects.
+
+7. Attachement
+    Represents files, documents, or URLs attached to tasks or projects.
+    Provides a way to associate relevant resources with tasks and projects.
+
+8. ActivityLog / History
+    An activity log is a great way to keep track of changes and updates made to tasks and projects.
+    You can create a separate model to represent the activity log, where each log entry contains information about the action, the user who performed the action, the timestamp, and any additional relevant data.
+    Whenever a task or project undergoes changes (e.g., status update, assignment change, etc.), a new log entry is created to record the activity.
+
+
+9. Notes
+    Notes can be categorized as "personal notes" visible only to the individual user who created them and "team notes" visible to all team members working on a specific task or project.
+    Each note can have a title, content, author, date created, and visibility setting (personal or team).
+
+    The "Notes" model would contain properties such as title, content, author, date created, visibility (personal or team), and possibly a reference to the related task or project.
+    To associate notes with tasks or projects, you can use a reference field, such as an ID, that links the note to the specific task or project it belongs to.
+    With this approach, notes can be managed as separate entities but still have a relationship with tasks or projects.
+
+    You can include a reference field in the "Notes" model, such as relatedTask, which holds the ID of the task to which the note is linked.
+
+    If notes can be related to projects, you can add another reference field in the "Notes" model, such as relatedProject, which holds the ID of the project to which the note is linked.
+
+    "notes should be independent of tasks, but may be able to reffer to some after they are created (or created with this intention from the start). if they are visible to the team, then they are tied to the project first of all. but when offline, what if each user may be able to see all of his notes in a section, including filtering options for date, project in which they are, offline or online notes"
+
+    "now, on the other topic, i feel like each note has to have a project that belongs to, but by default (and perhaps treated like a project) would be a personal space, the so called 'offline' that may indeed be offline. and here you may bring or just see all your notes from every project too"
+
+    
+
+10. Polls
+    Polls can be a valuable feature for gathering opinions and feedback from team members.
+    Users can create polls related to specific tasks or projects and receive responses from team members.
+    Each poll can have a question, multiple choices, and a way to collect and display the responses.
+
+
+
+MORE DESC:
+1. Yes, that's correct! If you have a frontend interface that allows users to drag and drop the task lines to switch their order, you can handle this interaction as an update request to the server.
+
+Here's a general overview of how you can implement this feature:
+
+Frontend Interface:
+
+The frontend interface displays the task details along with the lines in the desired order.
+Users can use drag and drop functionality to rearrange the lines and change their order visually on the frontend.
+Update Request (HTML Fetch):
+
+When the user performs the drag and drop action to reorder the lines, the frontend calculates the change and generates an update request.
+The update request is typically sent using JavaScript's fetch() function (or any other suitable method) to send an HTTP request to the server.
+Backend Handling:
+
+On the server side, you need to implement an API endpoint that handles the update request for changing the task lines' order.
+The backend should receive the request and extract the necessary information, such as the task ID and the new order of the lines.
+Update the Database:
+
+With the extracted information, the backend can now update the task document in the database with the new order of the lines.
+Depending on your database setup and schema, you may need to update the specific field that holds the taskLines array.
+Response to Frontend:
+
+After successfully updating the task in the database, the backend should send a response back to the frontend indicating the success of the operation.
+Update Frontend Display:
+
+Upon receiving the successful response, the frontend can update its view to reflect the new order of the task lines.
+The updated task lines' order will now be displayed on the frontend, showing the changes made by the user through drag and drop.
+
+2. Frontend (Creating Polls):
+
+In the frontend, when a user wants to create a poll, they would select the entity (e.g., task, comment, or note) to which the poll should be attached.
+The frontend will send an API request to the backend, providing the type of the entity (e.g., 'task', 'comment', or 'note') as a parameter, along with the poll question, options, and other relevant details.
+The API request would be handled by a specific endpoint, specifically designed to handle poll creation.
+Backend (Creating Polls):
+
+On the backend, the API endpoint for poll creation will receive the request and extract the provided information, including the type of the entity to which the poll is attached.
+The backend will verify that the provided entity type is valid (e.g., 'task', 'comment', or 'note'). If the type is valid, the backend will proceed to create the poll and associate it with the specified entity.
+If the entity type is not one of the specified types or if there's any other issue with the request, the backend will return an appropriate error response, indicating that the poll creation was not successful.
+Changing Poll's Entity (Updating Polls):
+
+If the user wants to change the entity to which a poll is attached (e.g., from a task to a comment), they can perform an update operation in the frontend.
+The frontend would send an API request to update the poll, providing the new entity type and the corresponding entity ID.
+The backend API endpoint for poll updates will receive the request and verify that the new entity type is valid and that the specified entity ID exists in the system.
+If the provided information is valid, the backend will update the poll's association with the new entity accordingly. Otherwise, it will return an error response.
+By following this approach, you can ensure that polls are correctly associated with the appropriate entities and provide a user-friendly experience for creating and managing polls.
+
+3. CALENDAR VIEW 
+For the calendar view for example, it should be like two instances: one for project to see all the project dates, and other for users to see al the deadlines that they parttake in. acknowledging that, how would that interact with the rest?
+
+Project-Level Calendar View:
+
+Display Project Deadlines:
+
+The project-level calendar view would show all the deadlines related to tasks within a specific project.
+Users can navigate to the project-level calendar from the project dashboard or a dedicated "Calendar" section in the project.
+Task Deadlines and Reminders:
+
+The project-level calendar view should display the deadlines for each task within the project, based on the deadline field in the Task model.
+Users can also view any set reminders associated with individual tasks on the calendar.
+Updating Task Deadlines:
+
+When users update the deadline field for a task, the changes will automatically reflect on the project-level calendar view.
+If a task's deadline is updated, the task's representation on the calendar will move to the new due date accordingly.
+User-Level Calendar View:
+
+Display User's Deadlines:
+
+The user-level calendar view would aggregate all the deadlines from different projects that the user is associated with.
+This view will provide users with a unified calendar displaying all their upcoming deadlines.
+Task Assignments and Personal Notes:
+
+The user-level calendar should show deadlines for tasks assigned to the user across various projects.
+Additionally, the calendar should display deadlines for personal notes that the user created within their personal space.
+Reminders:
+
+Reminders set by the user for various tasks will also be visible on the user-level calendar.
+This way, users can have a consolidated view of all their reminders in one place.
+
+Interactions with the Rest:
+
+Creating and Updating Tasks:
+
+Whenever users create or update a task and set a deadline, the app should automatically synchronize the task's deadline with the relevant project-level and user-level calendars.
+Setting Reminders:
+
+When users set reminders for tasks, the app should add these reminders to the appropriate calendars, both at the project and user levels.
+Viewing and Navigating:
+
+Users can view project-level and user-level calendars through the corresponding sections in the app.
+The calendars will allow users to navigate through different months and weeks to see all relevant deadlines.
+
+Considering that you want to optimize response times and make it easier to import data into the calendar view, using an additional field to store all the relevant dates for projects and users can be a beneficial approach.
+
+4. about money: ideas
+Additional Considerations:
+
+Currency and Formatting:
+
+Consider including information about the currency being used in the project, especially if it involves multiple currencies.
+Format the costs consistently to make them easily readable (e.g., use currency symbols, commas, and decimals).
+Permissions and Access Control:
+
+Depending on your app's requirements, consider implementing access controls to ensure that only authorized users can view and modify cost-related information.
+Budgeting and Expense Tracking:
+
+If your app focuses on project budgeting and expense tracking, you can expand the money resource features to include budget allocation for different tasks or stages of the project.
+Integration with External Tools:
+
+Consider integrating your app with financial management or accounting tools to provide users with more extensive financial tracking capabilities.
+
+5. aportul meu 
+One Team per Project:
+
+Having one team per project makes sense, as it provides a clear structure for managing project-specific resources and collaboration.
+Chapters as Temporal Delimitations:
+
+Yes, if chapters are used as temporal delimitations, they can help organize tasks and resources within a project based on phases, milestones, or stages.
+Project Clusters and User Space:
+
+Project clusters and user space can be considered as higher-level organizational concepts that help manage multiple related projects or provide a personalized workspace for individual users.
+UserTaskRel Model:
+
+Introducing a UserTaskRel model to handle user-specific relations with tasks is a valid idea. This model can facilitate customization of local and global alarms and any other user-specific preferences related to tasks.
+Project as the Main Block:
+
+Yes, the project will remain the central entity in your app, acting as the main container for tasks, chapters, and other project-related elements.
+Default User Privileges and Project Managers' Decisions:
+
+Having default user privileges and letting project managers decide on granting additional privileges is a good approach for controlling access and permissions.
+Automatic granting of certain privileges based on specific actions can help streamline workflow and avoid constant requests for authorization.
+
+6. mongo schemas
+our Task model reflects a common approach when designing MongoDB schemas, especially for applications dealing with task management or project organization. The model exhibits a combination of embedded documents (subdocuments) and references, which is a popular pattern in MongoDB.
+
+The use of embedded documents is ideal for nesting related data that is specific to the parent document and doesn't need to be queried independently. For example, the subtask field in your Task model is a perfect candidate for embedding because it holds specific information about the task and doesn't require querying as an independent entity.
+
+On the other hand, references are used to establish relationships between documents. When two entities have a one-to-many or many-to-many relationship, it's often better to store a reference to the related document's ObjectId rather than embedding the entire document. This approach helps avoid duplication and keeps the data consistent, especially when the referenced document might be updated frequently.
+
+7. When adding a new chapter, it's a good approach to start from the project and then propagate the changes down to the chapters, and finally to the other objects associated with the project or chapter.
+
+Here's a high-level overview of how you could approach adding a new chapter:
+
+Start from the Project:
+
+First, update the Project model to include the new chapter. This might involve adding the chapter's ID to the "chapters" array property of the project.
+Save the updated project to the database.
+Update the Chapters:
+
+Create a new Chapter document and set its properties based on the chapter data you want to add.
+Save the new chapter to the database.
+You might also want to update any other entities (such as Tasks, Notes, Attachments, Polls, etc.) that were associated with the project and now need to be associated with the new chapter.
+Update Associated Objects:
+
+For each entity type (Tasks, Notes, Attachments, Polls, etc.), check if it is associated with the project (either directly or through a chapter) and update the reference to the new chapter's ID.
+
+8. 
+
+
+9. 
