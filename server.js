@@ -21,6 +21,13 @@ app.use(cors(corsOptions))
 // built-in middleware for the ability to process json's in our app
 app.use(express.json())
 
+// TEMP // built in middlware 
+app.use((req, res, next) => {
+    console.log('Request body:', req.body);
+    next();
+  });
+  
+
 
 // built-in middleware for serving static files like HTML, CSS, images and client-side JavaScript files
 // <=> app.use(express.static('public')); the one in use one is more explicit, the other works because it's relative to where your server file is
@@ -28,7 +35,7 @@ app.use('/', express.static(path.join(__dirname, 'public')))
 
 // buit-in middlware for root handling 
 app.use('/', require('./routes/root'))
-//app.use('/users', require('./routes/userRoutes'))
+app.use('/users', require('./routes/userRoutes'))
 
 app.all('*', (req, res) => { //all pages 
     res.status(404)
