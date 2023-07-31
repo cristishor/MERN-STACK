@@ -1,5 +1,4 @@
 const User = require('../models/User')
-const Note = require('../models/Note')
 const asyncHandler = require('express-async-handler') //module used to help with not having too many try catch blocks as we use async methods with mongoose to save or delete data or even find data from mongodb
 const bcrypt = require('bcrypt') //module used to hash the password before we save it
 const { checkEmailFormat, checkPasswordFormat } = require('../utilities/regexCheck');
@@ -137,21 +136,6 @@ const updateUser = asyncHandler(async(req, res) => {
 const deleteUser = asyncHandler(async(req, res) => {
     const { id } = req.body
     
-    if (!id) {
-        return res.status(400).json({ message: 'User ID Required'}) 
-    }
-
-    const notes = await Note.findOne({ user: id }).lean().exec()
-    if(notes?.length) {
-        return res.status(400).json({ message: `User has assigned notes`})
-    }
-
-    const user = await User.findById(id).exec()
-
-    if(!user){
-        return res.status(400).json({ message: 'User not found'})
-    }
-
     const result = await user.deleteOne()
 
     const reply = `Username ${result.username} with ID ${result._id} deleted`
@@ -167,21 +151,6 @@ const deleteUser = asyncHandler(async(req, res) => {
 
 module.exports = {
     createNewUser, 
-    updateUser,
-    deleteUser,
     regexCheckEmail,
     regexCheckPassword
 }
-/*
-// @desc Get all users
-// @route GET /users
-// @access Private
-const getAllUsers = asyncHandler(async(req, res) => {
-    const users = await User.find().select('-password').lean() //find method, do not return the password with the user data and lean: mongoose would return a doc that has methods and other stuff in it 
-    if(!users){
-        return res.status(400).json({ message: 'No users found'})
-    }
-    res.json(users)
-})
-
-*/

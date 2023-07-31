@@ -2,8 +2,11 @@ require('dotenv').config()
 const express = require('express')
 const app = express()
 const path = require('path')
+
 const { logger, logEvents } = require('./middleware/logger')
 const errorHandler = require('./middleware/errorHandler')
+const authMiddleware = require('./middleware/authMiddleware');
+
 const cors = require('cors')
 const corsOptions = require('./config/corsOptions')
 const connectDB = require('./config/dbConn')
@@ -33,9 +36,10 @@ app.use((req, res, next) => {
 // <=> app.use(express.static('public')); the one in use one is more explicit, the other works because it's relative to where your server file is
 app.use('/', express.static(path.join(__dirname, 'public'))) 
 
-// buit-in middlware for root handling 
+// built-in middlware for root handling 
 app.use('/', require('./routes/root'))
 app.use('/users', require('./routes/userRoutes'))
+app.use('/projects', require('./routes/projectRoutes'))
 
 app.all('*', (req, res) => { //all pages 
     res.status(404)

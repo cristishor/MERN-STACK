@@ -21,7 +21,6 @@ const projectSchema = new mongoose.Schema({
   members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   status: { type: String, enum: ['in_progress', 'completed', 'on_hold'], default: 'in_progress' },
 
-  chapters: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Chapter' }],
   cluster: {type: mongoose.Schema.Types.ObjectId, ref: 'ProjectCluster'},
 
   // Additional Project Information 
@@ -31,7 +30,6 @@ const projectSchema = new mongoose.Schema({
  
   activityLog: [
     {
-      activityDate: { type: Date, required: true },
       activityType: { type: String, required: true },
       description: { type: String }
     }
