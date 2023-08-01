@@ -26,6 +26,7 @@ app.use(cors(corsOptions))
 
 // built-in middleware for the ability to process json's in our app
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }));
 
 // TEMP // built in middlware 
 app.use((req, res, next) => {
@@ -45,6 +46,7 @@ app.use('/users', require('./routes/userRoutes'))
 app.use('/projects', require('./routes/projectRoutes'))
 app.use('/register', require('./routes/registerRoutes'))
 app.use('/login', require('./routes/loginRoutes'))
+app.use('/home', require('./routes/homeRoutes'))
 
 app.all('*', (req, res) => { //all pages 
     res.status(404)

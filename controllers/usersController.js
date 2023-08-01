@@ -3,6 +3,7 @@ const asyncHandler = require('express-async-handler') //module used to help with
 const bcrypt = require('bcrypt') //module used to hash the password before we save it
 const { checkEmailFormat, checkPasswordFormat } = require('../utilities/regexCheck');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 const { createToken } = require('../utilities/jwt')
 
 //controllers have a req and a res, not a next because it should be the end of the line where we process the final data and process a res back
@@ -100,6 +101,12 @@ const createNewUser = asyncHandler(async(req, res) => {
       };
 
       const token = createToken(payload);
+
+      res.cookie('jwt', token, {
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000, // 1 day (in milliseconds)
+      });
+
       res.status(201).json({ message: `New user ${email} created`, token });
   } else {
       res.status(400).json({ message: 'Invalid user data received' });
@@ -142,9 +149,34 @@ const logInUser = asyncHandler(async(req, res) => {
     lastName: user.lastName
    }, process.env.SECRET_KEY, { expiresIn: '1d' });
 
+   res.cookie('jwt', token, {
+    httpOnly: true, // Cookie cannot be accessed via JavaScript
+    maxAge: 24 * 60 * 60 * 1000, // Token will expire in 1 day (milliseconds)
+    secure: true, // Set to true if using HTTPS
+  });
+
   // Return the token in the response
   res.status(200).json({ token });
 })
+
+const getHome = async (req, res) => {
+  // Get the userId from the URL params
+  const userId = req.params.userId;
+
+  // You can access the authenticated user's information from req.user, as the authMiddleware sets it
+  const authenticatedUser = req.user;
+
+  // Assuming you want to send back some data to the client
+  const responseData = {
+    message: `Welcome to the home page, ${authenticatedUser.firstName} ${authenticatedUser.lastName}!`,
+    userId: userId,
+  };
+
+  res.status(200).json(responseData);
+};
+
+//////////////////
+
 
 // @desc Update a user
 // @route PATCH /users
@@ -207,5 +239,6 @@ module.exports = {
     createNewUser, 
     regexCheckEmail,
     regexCheckPassword,
-    logInUser
+    logInUser,
+    getHome
 }
