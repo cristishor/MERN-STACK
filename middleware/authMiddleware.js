@@ -1,8 +1,11 @@
 const jwt = require('jsonwebtoken');
+//const cookieParser = require('cookie-parser')
 const User = require('../models/User');
+const {verifyToken} = require('../utilities/jwt')
+const path = require('path')
 
 const authMiddleware = async (req, res, next) => {
-  const token = req.header('Authorization');
+  const token = req.cookies.jwt;
 
   if (!token) {
     return res.status(401).json({ message: 'Authorization denied, missing token' });      // ADD REDIRECTS res.redirect('/login');
@@ -10,27 +13,37 @@ const authMiddleware = async (req, res, next) => {
 
   try {
     // Verify token
-    const decoded = jwt.verify(token, process.env.SECRET_KEY);
+    const decoded = verifyToken(token)
+
+    if (!decoded) {
+      return res.status(401).json({ message: 'Invalid token' }); // ADD REDIRECTS .redirect('/login');
+    }
 
     // Find the user in the database using the decoded user ID from the token
     const user = await User.findById(decoded.userId);
 
     if (!user) {
-      return res.status(401).json({ message: 'User not found' });
+      return res.status(401).json({ message: 'User not found' }); // ADD REDIRECTS .redirect('/register');
     }
 
-    // Set the authenticated user to req.user
-    req.user = user;
-    next();
-  } catch (error) { //INSTEAD OF THE FOLLOWING BODY, HAVE return res.redirect('/login')
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token has expired. Please log in again.' }); // ADD REDIRECTS .redirect('/login');
-    } else if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ message: 'Invalid token' });                          // ADD REDIRECTS .redirect('/login');
+    if (req.params.userId !== decoded.userId) {
+      res.status(403);
+      if (req.accepts('html')) {
+        res.sendFile(path.join(__dirname, '..', 'views', 'notYourWorkspace.html'));
+      } else if (req.accepts('json')) {
+        res.json({ message: '403: This is not your workspace :/' });
+      } else {
+        res.type('txt').send('403 Forbidden');
+      }
     } else {
-      return res.status(500).json({ message: 'Internal server error' });                  // ADD REDIRECTS .redirect('/login');
+      // Set the authenticated user to req.user
+      req.user = decoded;
+      next();
     }
+  } catch (error) { 
+      return res.status(500).json({ message: 'Internal server error' });
   }
-};
+}
+
 
 module.exports = authMiddleware;

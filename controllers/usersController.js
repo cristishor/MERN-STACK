@@ -91,23 +91,7 @@ const createNewUser = asyncHandler(async(req, res) => {
     const user = await User.create(userObject)
 
     if (user) {
-      // Create JWT token and send it back to the client
-      const payload = {
-          userId: user._id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          // Add any other necessary fields to the payload
-      };
-
-      const token = createToken(payload);
-
-      res.cookie('jwt', token, {
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000, // 1 day (in milliseconds)
-      });
-
-      res.status(201).json({ message: `New user ${email} created`, token });
+      res.status(201).json({ message: `New user ${email} created` });
   } else {
       res.status(400).json({ message: 'Invalid user data received' });
   }
@@ -142,13 +126,16 @@ const logInUser = asyncHandler(async(req, res) => {
   }
 
   // If email and password are valid, create a JWT token
-  const token = jwt.sign({ 
+  const payload = {
     userId: user._id,
     email: user.email,
     firstName: user.firstName,
-    lastName: user.lastName
-   }, process.env.SECRET_KEY, { expiresIn: '1d' });
+    lastName: user.lastName,
+    // Add any other necessary fields to the payload
+  };
 
+  const token = createToken(payload);
+  
    res.cookie('jwt', token, {
     httpOnly: true, // Cookie cannot be accessed via JavaScript
     maxAge: 24 * 60 * 60 * 1000, // Token will expire in 1 day (milliseconds)
@@ -156,7 +143,7 @@ const logInUser = asyncHandler(async(req, res) => {
   });
 
   // Return the token in the response
-  res.status(200).json({ token });
+  res.status(200).json({success: true, token });
 })
 
 const getHome = async (req, res) => {
