@@ -10,7 +10,7 @@ const authMiddleware = async (req, res, next) => {
 
   try {
     // Verify token
-    const decoded = jwt.verify(token, 'your_secret_key'); // Replace 'your_secret_key' with your actual secret key used to sign the tokens
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);
 
     // Find the user in the database using the decoded user ID from the token
     const user = await User.findById(decoded.userId);
@@ -23,7 +23,13 @@ const authMiddleware = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    return res.status(401).json({ message: 'Invalid token' });
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token has expired. Please log in again.' });
+    } else if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ message: 'Invalid token' });
+    } else {
+      return res.status(500).json({ message: 'Internal server error' });
+    }
   }
 };
 

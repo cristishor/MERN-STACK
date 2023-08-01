@@ -2,6 +2,8 @@ const User = require('../models/User')
 const asyncHandler = require('express-async-handler') //module used to help with not having too many try catch blocks as we use async methods with mongoose to save or delete data or even find data from mongodb
 const bcrypt = require('bcrypt') //module used to hash the password before we save it
 const { checkEmailFormat, checkPasswordFormat } = require('../utilities/regexCheck');
+const jwt = require('jsonwebtoken');
+const { createToken } = require('../utilities/jwt')
 
 //controllers have a req and a res, not a next because it should be the end of the line where we process the final data and process a res back
 
@@ -39,10 +41,10 @@ const regexCheckPassword = (req, res) => {
 // @route POST /users
 // @access Private
 const createNewUser = asyncHandler(async(req, res) => {
-    const { email, password, firstName, lastName/*, contactInformation*/ } = req.body
-    let profilePicture = req.body.profilePicture ? req.body.profilePicture : null
-    //const phone = contactInformation.phone ? contactInformation.phone : null
-    //const address = contactInformation.address ? contactInformation.address : null
+    const { email, password, firstName, lastName, contactInformation } = req.body
+    let profilePicture = req.body.profilePicture ?? null
+    let {phone, address} = contactInformation ?? {phone: null, address: null}
+  
 
     // Confirm data
     const requiredFields = ['email', 'password', 'firstName', 'lastName'];
@@ -78,18 +80,32 @@ const createNewUser = asyncHandler(async(req, res) => {
         firstName,
         lastName,
         profilePicture: profilePicture || null,
-        //phone: phone || null,
-        //address: address || null
+        contactInformation: {
+          phone: phone || null,
+          address: address || null
+        }
     }
 
     // Create and store new user
     const user = await User.create(userObject)
 
-    if (user) { //created
-        res.status(201).json({ message: `New user ${email} created` })
-    } else {
-        res.status(400).json({ message: 'Invalid user data received' })
-    }
+    if (user) {
+      // Create JWT token and send it back to the client
+      const payload = {
+          userId: user._id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          // Add any other necessary fields to the payload
+      };
+
+      const token = createToken(payload);
+      res.status(201).json({ message: `New user ${email} created`, token });
+  } else {
+      res.status(400).json({ message: 'Invalid user data received' });
+  }
+
+    
 })
 
 // @desc Update a user
