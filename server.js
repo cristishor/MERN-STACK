@@ -9,6 +9,9 @@ const authMiddleware = require('./middleware/authMiddleware');
 
 const cors = require('cors')
 const corsOptions = require('./config/corsOptions')
+const jwt = require('jsonwebtoken')
+const cookieParser = require('cookie-parser');
+
 const connectDB = require('./config/dbConn')
 const mongoose = require('mongoose')
 const PORT = process.env.PORT || 3500 //get port from global variables if exists
@@ -30,7 +33,7 @@ app.use((req, res, next) => {
     next();
   });
   
-
+app.use(cookieParser())
 
 // built-in middleware for serving static files like HTML, CSS, images and client-side JavaScript files
 // <=> app.use(express.static('public')); the one in use one is more explicit, the other works because it's relative to where your server file is
@@ -40,6 +43,8 @@ app.use('/', express.static(path.join(__dirname, 'public')))
 app.use('/', require('./routes/root'))
 app.use('/users', require('./routes/userRoutes'))
 app.use('/projects', require('./routes/projectRoutes'))
+app.use('/register', require('./routes/registerRoutes'))
+app.use('/login', require('./routes/loginRoutes'))
 
 app.all('*', (req, res) => { //all pages 
     res.status(404)

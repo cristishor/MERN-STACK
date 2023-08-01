@@ -7,7 +7,7 @@ const corsOptions = {
         // only the allowed ones are allowed to access the restful api; or no origin to allow postman or other desktop apps to test the api
             callback(null, true)
         } else {
-            callback(new Error('Not allowed by CORS'))
+            callback(new Error(`Not allowed by CORS ${origin}`))
         }
     },
     credentials: true, 

@@ -5,7 +5,7 @@ const authMiddleware = async (req, res, next) => {
   const token = req.header('Authorization');
 
   if (!token) {
-    return res.status(401).json({ message: 'Authorization denied, missing token' });
+    return res.status(401).json({ message: 'Authorization denied, missing token' });      // ADD REDIRECTS res.redirect('/login');
   }
 
   try {
@@ -22,13 +22,13 @@ const authMiddleware = async (req, res, next) => {
     // Set the authenticated user to req.user
     req.user = user;
     next();
-  } catch (error) {
+  } catch (error) { //INSTEAD OF THE FOLLOWING BODY, HAVE return res.redirect('/login')
     if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token has expired. Please log in again.' });
+      return res.status(401).json({ message: 'Token has expired. Please log in again.' }); // ADD REDIRECTS .redirect('/login');
     } else if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ message: 'Invalid token' });
+      return res.status(401).json({ message: 'Invalid token' });                          // ADD REDIRECTS .redirect('/login');
     } else {
-      return res.status(500).json({ message: 'Internal server error' });
+      return res.status(500).json({ message: 'Internal server error' });                  // ADD REDIRECTS .redirect('/login');
     }
   }
 };

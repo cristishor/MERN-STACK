@@ -108,6 +108,44 @@ const createNewUser = asyncHandler(async(req, res) => {
     
 })
 
+//LOG IN USER
+//@route POST /login
+//@access All
+const logInUser = asyncHandler(async(req, res) => {
+  const { email, password } = req.body;
+
+  // Check if email and password are provided
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Please provide email and password.' });
+  }
+
+  // Find the user in the database by email
+  const user = await User.findOne({ email });
+
+  // Check if the user exists in the database
+  if (!user) {
+    return res.status(401).json({ message: 'Invalid email or password.' });
+  }
+
+  // Check if the provided password matches the hashed password in the database
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordValid) {
+    return res.status(401).json({ message: 'Invalid email or password.' });
+  }
+
+  // If email and password are valid, create a JWT token
+  const token = jwt.sign({ 
+    userId: user._id,
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName
+   }, process.env.SECRET_KEY, { expiresIn: '1d' });
+
+  // Return the token in the response
+  res.status(200).json({ token });
+})
+
 // @desc Update a user
 // @route PATCH /users
 // @access Private
@@ -168,5 +206,6 @@ const deleteUser = asyncHandler(async(req, res) => {
 module.exports = {
     createNewUser, 
     regexCheckEmail,
-    regexCheckPassword
+    regexCheckPassword,
+    logInUser
 }
