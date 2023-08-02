@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create New Project</title>
+</head>
+<body>
+  <h1>Create New Project</h1>
+  <form id="projectForm">
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" required><br><br>
+
+    <label for="description">Description:</label><br>
+    <textarea id="description" name="description"></textarea><br><br>
+
+    <label for="members">Members:</label><br>
+    <input type="text" id="members" name="members[]"><br>
+
+    <div id="extraMembers"></div>
+
+    <button type="button" id="addMemberButton">Add Another Member</button><br><br>
+
+    <button type="submit">Create Project</button>
+  </form>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const addMemberButton = document.getElementById("addMemberButton");
+      const extraMembersDiv = document.getElementById("extraMembers");
+      let memberCount = 1;
+
+      addMemberButton.addEventListener("click", () => {
+        const newMemberInput = document.createElement("input");
+        newMemberInput.type = "text";
+        newMemberInput.name = "members[]";
+        newMemberInput.required = true;
+
+        extraMembersDiv.appendChild(newMemberInput);
+        memberCount++;
+      });
+
+      const projectForm = document.getElementById("projectForm");
+      projectForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(projectForm);
+
+        const userId = window.location.pathname.split("/").pop();
+
+        fetch(`/projects/new/${userId}`, {
+          method: "POST",
+          body: formData,
+          // Include credentials for sending cookies
+          credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(data => {
+          alert(data.message); // You can show a success message here or redirect to another page
+        })
+        .catch(error => {
+          console.error("Error creating project:", error);
+          alert("Error creating project. Please try again.");
+        });
+      });
+    });
+  </script>
+</body>
+</html>

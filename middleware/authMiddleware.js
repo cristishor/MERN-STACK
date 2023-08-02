@@ -37,6 +37,7 @@ const authMiddleware = async (req, res, next) => {
       }
     } else {
       
+      req.userId = decoded.userId
       next();
     }
   } catch (error) { 

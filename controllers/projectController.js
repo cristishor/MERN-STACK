@@ -8,14 +8,18 @@ const { checkEmailFormat } = require('../utilities/regexCheck');
 // @route POST /projects/new/:userID 
 // @access Private?
 const createProject = asyncHandler(async (req, res) => {
-    const { title, description, members } = req.body;
-    const owner = req.user._id; // Assuming you have a middleware that sets req.user to the authenticated user
-  
+    const { title, description } = req.body;
+    let { members } = req.body
+
+    const user = await User.findById(req.userId);
+    const owner = user._id
     // Check if title is provided
     if (!title) {
       return res.status(400).json({ message: 'Title is required' });
     }
-  
+
+    members = members ?? [];
+    
     for (const email of members) {
         //first check if the email is a valid email
         if (!checkEmailFormat(email)) {
@@ -28,15 +32,21 @@ const createProject = asyncHandler(async (req, res) => {
         title,
         description: description || '',
         owner,
+        projectManagers: `${user._id}`,
         members: [], 
         activityLog: [{
           activityType: 'Project created',
-          description: `${req.user.firstName} ${req.user.lastName} has opened the ${title} project!`
+          description: `${user.firstName} ${user.lastName} has opened the ${title} project!`
         }]
       });
   
       // Add the project to the owner's projects array
-      await User.findByIdAndUpdate(owner, { $push: { projects: project._id } });
+      await User.findByIdAndUpdate(owner, 
+        { $push: { 
+            projectsOwned: project._id,
+            projectsInvolved: project._id
+          } 
+        });
   
       for (const email of members) {
         const existingUser = await User.findOne({ email });
@@ -51,5 +61,21 @@ const createProject = asyncHandler(async (req, res) => {
       return res.status(500).json({ message: 'Error creating project', error: error.message });
     }
   });
+
+const getNewProjectForm = asyncHandler(async (req, res) => {
+  try {
+      const initialData = {
+        message: 'This is the new project form',
+        userId: req.params.userId,
+      };
+
+      res.status(200).json(initialData);
+    } catch (error) {
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  })
   
-  module.exports = { createProject };
+  module.exports = { 
+    createProject,
+    getNewProjectForm
+  };

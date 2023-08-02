@@ -6,18 +6,8 @@ const projectSchema = new mongoose.Schema({
   // Project Information
   title: { type: String, required: true },
   description: { type: String },
-  owner: { 
-    type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true,
-    validator: async function (value) {
-      // Fetch the user by ID to check if it's a project manager
-      const user = await mongoose.model('User').findById(value);
-      if (!user || user.role !== 'project_manager') {
-        return false;
-      }
-      return true;
-    },
-    message: 'Only project managers can be owners.'
-  },
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  projectManagers: [{type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true}],
   members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   status: { type: String, enum: ['in_progress', 'completed', 'on_hold'], default: 'in_progress' },
 
