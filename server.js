@@ -35,7 +35,6 @@ app.use((req, res, next) => {
   });
   
 app.use(cookieParser())
-
 // built-in middleware for serving static files like HTML, CSS, images and client-side JavaScript files
 // <=> app.use(express.static('public')); the one in use one is more explicit, the other works because it's relative to where your server file is
 app.use('/', express.static(path.join(__dirname, 'public'))) 
@@ -44,9 +43,6 @@ app.use('/', express.static(path.join(__dirname, 'public')))
 app.use('/', require('./routes/root'))
 app.use('/users', require('./routes/userRoutes'))
 app.use('/projects', require('./routes/projectRoutes'))
-app.use('/register', require('./routes/registerRoutes'))
-app.use('/login', require('./routes/loginRoutes'))
-app.use('/home', require('./routes/homeRoutes'))
 
 app.all('*', (req, res) => { //all pages 
     res.status(404)
