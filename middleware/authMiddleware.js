@@ -36,8 +36,7 @@ const authMiddleware = async (req, res, next) => {
         res.type('txt').send('403 Forbidden');
       }
     } else {
-      // Set the authenticated user to req.user
-      req.user = decoded;
+      
       next();
     }
   } catch (error) { 

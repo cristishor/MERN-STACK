@@ -1,0 +1,128 @@
+
+    FRONTEND
+
+I. COMPONENTS
+
+    1. Header
+
+import React from 'react';
+
+const Header = ({ firstName, lastName, notifications }) => {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <h1>Welcome back {firstName} {lastName}</h1>
+      <button>
+        {notifications.length > 0 ? `Notifications (${notifications.length})` : 'No Notifications'}
+      </button>
+    </div>
+  );
+};
+
+export default Header;
+
+
+    2. home
+
+import React from 'react';
+
+const Home = ({ firstName, lastName, projects, tasks }) => {
+  return (
+    <div>
+      <h1>Welcome back {firstName} {lastName}</h1>
+      <div style={{ display: 'flex' }}>
+        {/* Projects section */}
+        <div style={{ flex: '1', borderRight: '1px solid #ccc' }}>
+          {projects.length > 0 ? (
+            <>
+              <h2>Projects Involved</h2>
+              <ul>
+                {projects.map(project => (
+                  <li key={project.id}>{project.name}</li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p>Projects folder empty</p>
+          )}
+          <button onClick={() => window.location.href = `/projects/new/${userId}`}>
+            Add New Project
+          </button>
+        </div>
+
+        {/* Tasks section */}
+        <div style={{ flex: '2', padding: '0 20px' }}>
+          {tasks.length > 0 ? (
+            <>
+              <h2>Tasks Assigned</h2>
+              <ul>
+                {tasks.map(task => (
+                  <li key={task.id}>{task.name}</li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p>No tasks available :)</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Home;
+
+
+
+II. App.js
+
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+const App = () => {
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`/home/${userId}`);
+                console.log('forntu a primit date')
+        setUserData(response.data);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  if (!userData) {
+    // Loading state or any other UI while waiting for the data to be fetched
+    return <div>Loading...</div>;
+  }
+
+  const { firstName, lastName, projectsInvolved, tasksAssigned, notifications } = userData;
+
+  return (
+    <div>
+      <Header firstName={firstName} lastName={lastName} notifications={notifications} />
+      <Home firstName={firstName} lastName={lastName} projects={projectsInvolved} tasks={tasksAssigned} />
+    </div>
+  );
+};
+
+export default App;
+
+
+
+III. index.js
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('root')
+);

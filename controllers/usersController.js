@@ -146,20 +146,34 @@ const logInUser = asyncHandler(async(req, res) => {
   res.status(200).json({success: true, token });
 })
 
+
+
 const getHome = async (req, res) => {
+
+
   // Get the userId from the URL params
   const userId = req.params.userId;
 
   // You can access the authenticated user's information from req.user, as the authMiddleware sets it
-  const authenticatedUser = req.user;
+  const authenticatedUser = await User.findById(userId);
 
   // Assuming you want to send back some data to the client
   const responseData = {
     message: `Welcome to the home page, ${authenticatedUser.firstName} ${authenticatedUser.lastName}!`,
     userId: userId,
+    firstName: authenticatedUser.firstName,
+    lastName: authenticatedUser.lastName,
+    profilePicture: authenticatedUser.profilePicture,
+    contactInformation: {
+        phone: authenticatedUser.contactInformation.phone,
+        address: authenticatedUser.contactInformation.address,
+    },
+    notifications: authenticatedUser.notifications,
+    projectsOwned: authenticatedUser.projectsOwned,
+    projectsInvolved: authenticatedUser.projectsInvolved,
+    tasksAssigned: authenticatedUser.tasksAssigned
   };
-
-  res.status(200).json(responseData);
+  res.json(responseData);
 };
 
 //////////////////
