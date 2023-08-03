@@ -41,8 +41,8 @@ const createProject = asyncHandler(async (req, res) => {
       });
   
       // Add the project to the owner's projects array
-      await User.findByIdAndUpdate(owner, 
-        { $push: { 
+      await User.findByIdAndUpdate(owner, { 
+        $push: { 
             projectsOwned: project._id,
             projectsInvolved: project._id
           } 
@@ -51,7 +51,7 @@ const createProject = asyncHandler(async (req, res) => {
       for (const email of members) {
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            // SEND AN INVITATION EMAIL TO JOIN / IN-APP NOTIFICATION -> registered users only!
+            // SEND AN INVITATION w/ IN-APP NOTIFICATION -> registered users only!
         } 
       }
 

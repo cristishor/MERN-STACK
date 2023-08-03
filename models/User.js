@@ -1,11 +1,12 @@
-//user data model
+  //user data model
 
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 // Define the User schema
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  password: { type: String, required: true, select: false },
   role: { type: String, enum: ['regular_user', 'admin'], default: 'regular_user' },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
@@ -20,17 +21,8 @@ const userSchema = new mongoose.Schema({
     }
   ],
   projectsOwned: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }],
-  projectsInvolved: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }],
-  tasksAssigned: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }],
+  projectsInvolved: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }]
   //personalNotes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Note' }], // Array of user's personal notes
-  /*userDeadlines: [
-    {
-      deadlineDate: { type: Date, required: true },
-      isPermanentlyShown: { type: Boolean, default: false },
-      isHidden: { type: Boolean, default: false }
-    }
-  ],
-  */
 });
 
 // Create the User model

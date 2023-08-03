@@ -12,6 +12,13 @@ const authMiddleware = async (req, res, next) => {
   }
 
   try {
+    // Check if the route is /users/logout -> delete the cookie = logout
+    if (req.path === '/logout') { 
+      res.clearCookie('jwt');
+
+      return next();
+    }
+
     // Verify token
     const decoded = verifyToken(token)
 

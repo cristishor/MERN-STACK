@@ -10,8 +10,8 @@ const usersController = require('../controllers/usersController')
 
 // *** ALL ROUTES START AT /users *** 
 
-router.route('/check/email').post(regexCheckEmail)
-router.route('/check/password').post(regexCheckPassword)
+router.route('/regexEmail').post(regexCheckEmail)
+router.route('/regexPassword').post(regexCheckPassword)
 
 router.route('/register(.html)?')
   .post(usersController.createNewUser)
@@ -25,10 +25,12 @@ router.route('/login(.html)?')
   .get( (req, res) => {
     res.sendFile(path.join(__dirname,'..','views','login.html'))
 })
-
-router.get('/home/:userId', authMiddleware, usersController.getHome);
+router.delete('/logout(.html)?', authMiddleware)  //the authMiddleware handle the logout
  
-
+router.route('/:userId')
+  .get(authMiddleware, usersController.getUser)
+  .put(authMiddleware, usersController.updateUser)
+  .delete(authMiddleware, usersController.deleteUser)
 
 
 

@@ -8,7 +8,7 @@ const taskSchema = new mongoose.Schema({
   cost: { type: Number }, // Optional if using the `costs` array from the Project model
 
   chapter: { type: mongoose.Schema.Types.ObjectId, ref: 'Chapter', required: true },
-  assignees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  assignee: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   
   endDate: { type: Date },
   estimatedTime: { type: Number }, // In hours, days, etc.

@@ -1,4 +1,6 @@
 const User = require('../models/User')
+const Project = require('../models/Project');
+const Task = require('../models/Task');
 const asyncHandler = require('express-async-handler') //module used to help with not having too many try catch blocks as we use async methods with mongoose to save or delete data or even find data from mongodb
 const bcrypt = require('bcrypt') //module used to hash the password before we save it
 const { checkEmailFormat, checkPasswordFormat } = require('../utilities/regexCheck');
@@ -111,7 +113,7 @@ const logInUser = asyncHandler(async(req, res) => {
   }
 
   // Find the user in the database by email
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).select('+password');;
 
   // Check if the user exists in the database
   if (!user) {
@@ -146,10 +148,17 @@ const logInUser = asyncHandler(async(req, res) => {
   res.status(200).json({success: true, token });
 })
 
+//NOT USED -> awthMiddleware handles it!
+const logOutUser = asyncHandler(async (req, res) => {
+  // Clear the authentication cookie by setting it to an empty value and expiring it immediately
+  res.cookie('jwt', '', { maxAge: 0 });
+
+  res.status(200).json({ message: 'Logout successful' });
+});
 
 
-const getHome = async (req, res) => {
 
+const getUser = async (req, res) => {
 
   // Get the userId from the URL params
   const userId = req.params.userId;
@@ -183,51 +192,111 @@ const getHome = async (req, res) => {
 // @route PATCH /users
 // @access Private
 const updateUser = asyncHandler(async(req, res) => {
-    const {id, username, role, active, password} = req.body
+  const {oldPassword, newPassword, firstName, lastName, profilePicture, phone, address} = req.body
 
-    //confirm data
-    if(!id || !username || !Array.isArray(role) || !role.length || typeof active !== 'boolean') {
-        return res.status(400).json({ message: 'All fields are required'})
+  try{
+    const user = await User.findById(req.userId).select('+password');
+    if (!user) {
+    return res.status(404).json({ message: 'User not found' });
     }
 
-    const user = await User.findById(id).exec() //exec() because we pass a value and we have to recieve a promise
+    // Verify old password if changing password
+    if (newPassword) {
+      if (!oldPassword) {
+        return res.status(400).json({ message: 'Missing old password' });
+      } else {
+        const isOldPasswordValid = await bcrypt.compare(oldPassword, user.password);
 
-    if(!user){
-        return res.status(400).json({ message: 'User not found'})
+    if (!isOldPasswordValid) {
+          return res.status(401).json({ message: 'Incorrect old password' }); 
+        }
+      }
     }
 
-    //check for duplicate
-    const duplicate = await User.findOne({username}).lean().exec()
-    //allow updates to the original user
-    if (duplicate && duplicate?._id.toString() !== id){
-        return res.status(409).json({message: 'Duplicate username'})
+    // Update user information
+    if (newPassword) {
+      const hashedPwd = await bcrypt.hash(newPassword, 10)
+      user.password = hashedPwd;
+    }
+    if (firstName) {
+      user.firstName = firstName;
+    }
+    if (lastName) {
+      user.lastName = lastName;
+    }
+    if (profilePicture) {
+      user.profilePicture = profilePicture;
+    }
+    if (address) {
+        user.contactInformation.address = address;
+      }
+    if (phone) {
+        user.contactInformation.phone = phone;
+      }
+
+    // Check if all fields are empty
+    if (!newPassword && !firstName && !lastName && !profilePicture && !phone && !address) {
+      return res.status(400).json({ message: 'No fields to update.' });
     }
 
-    user.username = username
-    user.role = role
-    user.active = active
+    // Save the updated user
+    await user.save();
+    returnUser = await User.findById(req.userId).select('-password');
 
-    if(password){
-        //hash password 
-        user.password = await bcrypt.hash(password, 10) //salt rounds -> gpt salt rounds
-    }
-
-    const updatedUser = await user.save() //if any error -> caught by the async handler tho we use no try and catch 
-
-    res.json({ message: `${updatedUser.username} updated` })
-})
+    return res.status(200).json({ message: 'User updated successfully.', returnUser });
+  } catch (error) {
+  return res.status(500).json({ message: 'Error updating user.', error: error.message });
+}
+});
 
 // @desc Delete a users
 // @route DELETE /users
 // @access Private
 const deleteUser = asyncHandler(async(req, res) => {
-    const { id } = req.body
+  const { password } = req.body
+  const userId = req.userId
     
-    const result = await user.deleteOne()
+  const user = await User.findById(userId).select('+password');
+  try{ 
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-    const reply = `Username ${result.username} with ID ${result._id} deleted`
+    if (!password) {
+      return res.status(401).json({ message: 'Password needed for authorization' });
+    }
 
-    res.json(reply)
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Incorrect password' });
+    }
+
+      // Delete all projects owned by the user
+    for (const projectId of user.projectsOwned) {
+      await Project.findByIdAndDelete(projectId);
+    }
+
+      // Find all projects where the user is a member
+    const projects = user.projectsInvolved
+      // Update the members array in each project to remove the user
+    await Promise.all(
+      projects.map(project => Project.findByIdAndUpdate(project._id, { $pull: { members: userId } }))
+    );
+
+    // If needed, update tasks to remove the user from the assignee field
+    await Task.updateMany({ assignee: userId }, { $unset: { assignee: 1 } });
+
+
+    // Finally, delete the user
+    await User.findByIdAndDelete(userId);
+    
+  
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ message: 'Error deleting user' });
+  }
+
+  return res.status(200).json({ message: 'User deleted successfully' });
 })
 
 // regex check email
@@ -241,5 +310,8 @@ module.exports = {
     regexCheckEmail,
     regexCheckPassword,
     logInUser,
-    getHome
+    logOutUser,
+    getUser,
+    updateUser,
+    deleteUser
 }
