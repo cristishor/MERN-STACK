@@ -33,20 +33,4 @@ router.route('/:userId')
   .delete(authMiddleware, usersController.deleteUser)
 
 
-
-/* // /home REDIRECT to /home/:userId -> move to frontend
-router.get('/', (req, res) => {
-    if (req.cookies.jwt) {
-      // If the jwt cookie exists, extract userId from the token and redirect
-      const jwt = require('jsonwebtoken');
-      const decoded = jwt.verify(req.cookies.jwt, process.env.SECRET_KEY);
-      const userId = decoded.userId;
-      res.redirect(`/home/${userId}`);
-    } else {
-      // If no jwt cookie, redirect to the login page
-      res.redirect('/login');
-    }
-  });
-  */
-
 module.exports = router

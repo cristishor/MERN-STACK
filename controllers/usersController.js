@@ -161,7 +161,7 @@ const logOutUser = asyncHandler(async (req, res) => {
 const getUser = async (req, res) => {
 
   // Get the userId from the URL params
-  const userId = req.params.userId;
+  const userId = req.userId;
 
   // You can access the authenticated user's information from req.user, as the authMiddleware sets it
   const authenticatedUser = await User.findById(userId);

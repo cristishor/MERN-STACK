@@ -44,7 +44,7 @@ const authMiddleware = async (req, res, next) => {
       }
     } else {
       
-      req.userId = decoded.userId
+      req.userId = decoded.userId // send it in the req.body so that i dont have to get it out each time, its already there.
       next();
     }
   } catch (error) { 
