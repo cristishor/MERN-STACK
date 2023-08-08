@@ -12,12 +12,6 @@ const authMiddleware = async (req, res, next) => {
   }
 
   try {
-    // Check if the route is /users/logout -> delete the cookie = logout
-    if (req.path === '/logout') { 
-      res.clearCookie('jwt');
-
-      return next();
-    }
 
     // Verify token
     const decoded = verifyToken(token)
@@ -43,7 +37,12 @@ const authMiddleware = async (req, res, next) => {
         res.type('txt').send('403 Forbidden');
       }
     } else {
-      
+      // Check if the route is /users/logout -> delete the cookie = logout
+      if (req.path === '/logout') { 
+      res.clearCookie('jwt');
+
+      return next();
+    }
       req.userId = decoded.userId // send it in the req.body so that i dont have to get it out each time, its already there.
       next();
     }

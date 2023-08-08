@@ -7,7 +7,6 @@ const pollOptionsSchema = new mongoose.Schema({
 
 const pollsSchema = new mongoose.Schema({
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  chapter: { type: mongoose.Schema.Types.ObjectId, ref: "Chapter", required: true },
   title: { type: String, required: true },
   options: [pollOptionsSchema],
 }, {timestamps : true});

@@ -1,9 +1,15 @@
 const mongoose = require('mongoose');
 
 const notificationSchema = new mongoose.Schema({
-  // Common properties for all notifications
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  project: { type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: false },
+  title: { type: String, required: true },
+  body: { type: String, requird: true},
+  proposal: {
+    type: {
+      sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      targetId: { type: mongoose.Schema.Types.ObjectId, ref: 'Project' },
+      message: { type: String },
+    }, default: null, },
+  seen: {type: Boolean, required: true, default: false}
 
 
 }, {timestamps : true});

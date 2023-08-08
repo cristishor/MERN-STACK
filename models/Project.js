@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-// Define the Project schema
 const projectSchema = new mongoose.Schema({
 
   // Project Information
@@ -11,13 +10,20 @@ const projectSchema = new mongoose.Schema({
   projectManagers: [{type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true}],
   members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 
+  tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }],
+  notes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Note' }],
+  authorlessNotes: [{
+    removedCreator: {type: String},
+    noteBody: {type: String}
+  }],
+
   // Additional Project Information 
   status: { type: String, enum: ['in_progress', 'completed', 'on_hold'], default: 'in_progress' },
   budget: { type: Number, default: 0 },
   expenses: [{
     expenseName: {type: String, required: true},
     cost: {type: Number, required: true},
-    taskRefference: {type: mongoose.Schema.Types.ObjectId, ref: 'User'}
+    taskRefference: {type: String}
   }], 
   endDate: { type: Date },
  
@@ -28,7 +34,6 @@ const projectSchema = new mongoose.Schema({
 
 }, {timestamps : true});
 
-// Create the Project model
 const Project = mongoose.model('Project', projectSchema);
 
 module.exports = Project;

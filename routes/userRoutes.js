@@ -25,7 +25,8 @@ router.route('/login(.html)?')
   .get( (req, res) => {
     res.sendFile(path.join(__dirname,'..','views','login.html'))
 })
-router.delete('/logout(.html)?', authMiddleware)  //the authMiddleware handle the logout
+
+router.delete('/:userId/logout(.html)?', authMiddleware)  //the authMiddleware handle the logout
  
 router.route('/:userId')
   .get(authMiddleware, usersController.getUser)

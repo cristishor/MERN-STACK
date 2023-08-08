@@ -11,14 +11,10 @@ const projectAccess = require('../middleware/projectAccess')
 
 router.route('/new/:userId')
   .post(authMiddleware, projectController.createProject)
-  .get(authMiddleware, (req, res) => {
-    const filePath = path.join(__dirname, '..','views','newProject.html')
-    res.sendFile(filePath)
-  })
 
 //test projectAccess middleware 
 router.route('/:projectId/:userId')
-.get(authMiddleware, projectAccess, /*some controller here*/)
+.get(authMiddleware, projectAccess, projectController.getProject)
 
 
 module.exports = router

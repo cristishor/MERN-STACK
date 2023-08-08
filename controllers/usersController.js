@@ -113,7 +113,7 @@ const logInUser = asyncHandler(async(req, res) => {
   }
 
   // Find the user in the database by email
-  const user = await User.findOne({ email }).select('+password');;
+  const user = await User.findOne({ email }).select('+password')
 
   // Check if the user exists in the database
   if (!user) {
@@ -273,6 +273,7 @@ const deleteUser = asyncHandler(async(req, res) => {
 
       // Delete all projects owned by the user
     for (const projectId of user.projectsOwned) {
+             // *********************************************** FIRST: GO THROUGH MEMBERS IN PROJID AND DELETE ALL
       await Project.findByIdAndDelete(projectId);
     }
 
