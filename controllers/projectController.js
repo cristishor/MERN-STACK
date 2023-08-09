@@ -10,8 +10,7 @@ const { createNotification } = require('./notificationController')
 // CREATE NEW PROJECT
 // @route POST /projects/new/:userID 
 const createProject = asyncHandler(async (req, res) => {
-    const { title, description } = req.body;
-    let { members } = req.body
+    const { title, description, members } = req.body;
 
     const user = await User.findById(req.userId).exec();
     const owner = user._id
@@ -20,11 +19,9 @@ const createProject = asyncHandler(async (req, res) => {
       return res.status(400).json({ message: 'Title is required' });
     }
 
-    members = members ?? [];
-    
-    for (const email of members) {
+    for (const member of members) {
         //first check if the email is a valid email
-        if (!checkEmailFormat(email)) {
+        if (!checkEmailFormat(member.email)) {
             return res.status(400).json({ message: 'Invalid member email format.' });
         }      
     }
@@ -50,8 +47,9 @@ const createProject = asyncHandler(async (req, res) => {
           } 
         });
   
-      for (const email of members) {
-        const existingUser = await User.findOne({ email });
+      for (const member of members) {
+        const email = member.email
+        const existingUser = await User.findOne({ email }).exec();
         if (existingUser) {
             // SEND AN INVITATION w/ IN-APP NOTIFICATION -> registered users only!
         } 
