@@ -7,6 +7,7 @@ const projectAccess = require('../middleware/projectAccess')
 const { regexCheckEmail, regexCheckPassword } = require('../controllers/usersController')
 
 const usersController = require('../controllers/usersController')
+const notificationController = require('../controllers/notificationController')
 
 // *** ALL ROUTES START AT /users *** 
 
@@ -33,5 +34,7 @@ router.route('/:userId')
   .put(authMiddleware, usersController.updateUser)
   .delete(authMiddleware, usersController.deleteUser)
 
-
+router.route('/:userId/:notifId')
+//  .get(authMiddleware, notificationController.getNotification)
+  .put(authMiddleware, notificationController.updateNotification)
 module.exports = router

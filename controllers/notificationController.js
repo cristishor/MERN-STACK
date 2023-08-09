@@ -1,33 +1,36 @@
 const User = require('../models/User')
 const Project = require('../models/Project')
 const Notification = require('../models/Notification');
+const asyncHandler = require('express-async-handler')
 
+const sortNotifications = async (user) => {
 
-const sortNotifications = (notifications) => {
-    // Separate seen and unseen notifications
-    const unseenNotifications = notifications.filter((notif) => !notif.seen);
-    const seenNotifications = notifications.filter((notif) => notif.seen);
-  
-    // Sort unseen notifications by newest first
+  const notificationObjects = await Notification.find({ _id: { $in: user.notifications } }).exec();
+
+    const unseenNotifications = notificationObjects.filter((notif) => !notif.seen);
+    const seenNotifications = notificationObjects.filter((notif) => notif.seen);
+
+    // Sort seen and unseen notifications by newest first
     unseenNotifications.sort((a, b) => b.createdAt - a.createdAt);
-  
-    // Sort seen notifications by newest first
     seenNotifications.sort((a, b) => b.createdAt - a.createdAt);
-  
-    // Combine unseen and seen notifications
-    const sortedNotifications = [...unseenNotifications, ...seenNotifications];
-  
-    return sortedNotifications;
-  };
-  
 
-const createNotification = async (req, res, next) => {
-    try {
-      const { targetUserId, title, body, proposal } = req.body;
+    const sortedNotifications = [...unseenNotifications, ...seenNotifications]
+    console.log(sortedNotifications)
+    user.notifications = sortedNotifications.map((notif) => notif._id); // Only store IDs
+    
+    await user.save();
+    };
   
+const getNotification = async (req, res) => {
+
+}
+
+const createNotification = async (req) => {
+      const { targetUserId, title, body, proposal } = req.body;
+
       const targetUser = await User.findById(targetUserId);
       if (!targetUser) {
-        return res.status(404).json({ message: 'Target user not found' });
+        throw new Error('Target user not found');
       }
   
       const notification = new Notification({
@@ -35,24 +38,24 @@ const createNotification = async (req, res, next) => {
         body,
         proposal: null,
       });
-  
+
     if (proposal) { 
        notification.proposal = proposal
     }
 
-      targetUser.notifications.unshift(notification); //add it first in the array as it is the latest.
-      await targetUser.save();
+    await notification.save();
 
-      return res.status(200).json({ message: 'Notification sent successfully' });
-    } catch (error) {
-      return next(error);
+    targetUser.notifications.unshift(notification._id); //add it first in the array as it is the latest.
+    await targetUser.save();
+
+    return { message: 'Notification sent successfully' };
     }
-  };
   
 
-const updateNotification = async (req, res, next) => {
+const updateNotification = async (req, res) => {
     try {
-      const { notificationId, wasSeen, response } = req.body;
+      const { wasSeen, response } = req.body;
+      const notificationId = req.params.notifId;
       const userId = req.userId;
   
       const user = await User.findById(userId).exec();
@@ -64,7 +67,7 @@ const updateNotification = async (req, res, next) => {
       if (!notification) {
         return res.status(404).json({ message: 'Notification not found' });
       }
-  
+ 
       // If the notification has proposal set to true and there's a response, update the "seen" status
       if (notification.proposal && response) {
 
@@ -77,9 +80,12 @@ const updateNotification = async (req, res, next) => {
             project.members.push(userId);
             await project.save();
 
+            const newTitle = ''
+            const newBody = ''
+
             if (notification.proposal.message === 'joinProject') {
-                const newTitle = 'A new member joined your project!'
-                const newBody = `${user.firstName} ${user.lastName} has joined your project: ${project.title}`
+                newTitle = 'A new member joined your project!'
+                newBody = `${user.firstName} ${user.lastName} has joined your project: ${project.title}`
             }
             
             targetUserId = project.owner
@@ -91,18 +97,17 @@ const updateNotification = async (req, res, next) => {
         }
     }
       
-      if (wasSeen === true) {
+      if (wasSeen) {
         notification.seen = true;
       }
   
-      await user.save();
+      await notification.save()
   
-      user.notifications = sortNotifications(user.notifications);
-      await user.save();
+      await sortNotifications(user);
   
       return res.status(200).json({ message: 'Notification updated successfully' });
     } catch (error) {
-      return next(error);
+      return (error);
     }
   };
   
@@ -110,5 +115,6 @@ const updateNotification = async (req, res, next) => {
 
   module.exports = {
     createNotification,
-    updateNotification
+    updateNotification,
+    getNotification
   };

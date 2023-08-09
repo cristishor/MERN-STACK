@@ -287,14 +287,21 @@ const addMember = asyncHandler(async (req, res) => {
         targetId : projId,
         message : 'joinProject'
       }
+    
+      req.body = { targetUserId, title, body, proposal };
 
-    // Pass the notification data to the createNotification controller
-    req.body = { targetUserId, title, body, proposal };
-    await createNotification(req, res, next);
-
+    } else {
+      return res.status(400).json({ message: 'Target user already in team. '})
     }
 
-    res.status(200).json({ message: 'Member added successfully.' });
+    // Pass the notification data to the createNotification controller
+    try {
+      await createNotification(req);
+      res.status(200).json({ message: 'Member added successfully' })
+    } catch (error) {
+      console.error('Error creating notification:', error);
+      res.status(500).json({ message: 'An error occurred while adding the member' });
+    }
 });
 
 // DELETE REMOVE MEMBER

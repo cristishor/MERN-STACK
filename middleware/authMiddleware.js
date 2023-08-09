@@ -6,7 +6,7 @@ const path = require('path')
 
 const authMiddleware = async (req, res, next) => {
   const token = req.cookies.jwt;
-
+  
   if (!token) {
     return res.status(401).json({ message: 'Authorization denied, missing token' });      // ADD REDIRECTS res.redirect('/login');
   }
@@ -38,10 +38,10 @@ const authMiddleware = async (req, res, next) => {
       }
     } else {
       // Check if the route is /users/logout -> delete the cookie = logout
-      if (req.path === '/logout') { 
+      if (req.path === `/${decoded.userId}/logout`) { 
       res.clearCookie('jwt');
 
-      return next();
+      return res.status(200).json({ message: 'Log out succesful!' });
     }
       req.userId = decoded.userId // send it in the req.body so that i dont have to get it out each time, its already there.
       next();
