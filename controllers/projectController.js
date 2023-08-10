@@ -5,6 +5,7 @@ const Task = require('../models/Task')
 const asyncHandler = require('express-async-handler');
 const { checkEmailFormat } = require('../utilities/regexCheck');
 const { createNotification } = require('./notificationController')
+const { addActivityLogEntry } = require('../utilities/activityLog')
 
 
 // CREATE NEW PROJECT
@@ -47,13 +48,30 @@ const createProject = asyncHandler(async (req, res) => {
           } 
         });
   
+      // Send notifications to existing users
       for (const member of members) {
-        const email = member.email
-        const existingUser = await User.findOne({ email }).exec();
+        const existingUser = await User.findOne({ email: member.email }).exec();
+
         if (existingUser) {
-            // SEND AN INVITATION w/ IN-APP NOTIFICATION -> registered users only!
-        } 
-      }
+          // SEND AN INVITATION w/ IN-APP NOTIFICATION -> registered users only!
+          const title = 'Join my team!';
+          const body = `${user.firstName} ${user.lastName} has invited you to join the project ${project.title}`;
+          const proposal = {
+            sender: owner,
+            targetId: project._id,
+            message: 'joinProject'
+          };
+  
+          const notificationData = {
+            targetUserId: existingUser._id,
+            title,
+            body,
+            proposal
+          };
+  
+          await createNotification({ body: notificationData });
+        }
+      } 
 
       return res.status(201).json({ message: 'Project created successfully', project });
 
@@ -84,10 +102,9 @@ const getProject = asyncHandler (async (req, res) => {
         projectNotes: project.notes,
         authorlessNotes: project.authorlessNotes,
         status: project.status,
-        endDate: project.endDate,
-        createdAt: project.createdAt,
-        updatedAt: project.updatedAt,
+        endDate: project.endDate
       };
+      
       res.status(200).json({ project });
     }
 });
@@ -104,7 +121,7 @@ const passOwnership = asyncHandler(async (req, res) => {
       return res.status(403).json({ message: 'Only owners can pass ownership.' });
     }
 
-    // Check if the targetUserId exists and is a member of the project
+    // Check if the targetUserId exists and is a manager of the project
     const targetUser = await User.findById(targetUserId).exec();
     const project = await Project.findById(projId).exec();
 
@@ -129,7 +146,11 @@ const passOwnership = asyncHandler(async (req, res) => {
 
     // Pass the notification data to the createNotification controller
     req.body = { targetUserId, title, body };
-    await createNotification(req, res, next);
+    await createNotification(req);
+
+    const activityType = 'Ownership Changed'
+    const description = `${targetUser.firstName} ${targetUser.lastName} is the new owner.`
+    addActivityLogEntry(project, activityType, description)
 
     res.status(200).json({ message: 'Ownership transferred successfully.' });
 
@@ -152,20 +173,27 @@ const updateProject = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: 'Project not found.' });
     }
 
+    let descriptionLog = ''
+
     if (title) {
       project.title = title;
+      descriptionLog += `New title: ${title}\n`
     }
     if (description) {
       project.description = description;
+      descriptionLog += `New description: ${description}\n`
     }
     if (status) {
       project.status = status;
+      descriptionLog += `New status: ${status}\n`
     }
     if (budget) {
       project.budget = budget;
+      descriptionLog += `New budget: ${budget}\n`
     }
     if (endDate) {
       project.endDate = endDate;
+      descriptionLog += `New end date: ${endDate}\n`;
     }
 
     if (!title  && !description && !status && !budget && !endDate) {
@@ -174,6 +202,10 @@ const updateProject = asyncHandler(async (req, res) => {
 
     // Save the updated project
     await project.save();
+
+    const activityType = 'Project Updated'
+    const log = `The owner has made the following changes:\n ${descriptionLog}`
+    addActivityLogEntry(project, activityType, { description:log } )
 
     res.status(200).json({ message: 'Project updated successfully.' });
 });
@@ -210,7 +242,11 @@ const addManager = asyncHandler(async (req, res) => {
 
     // Pass the notification data to the createNotification controller
     req.body = { targetUserId, title, body };
-    await createNotification(req, res, next);
+    await createNotification(req);
+
+    const activityType = 'New Manager'
+    const description = `${targetUser.firstName} ${targetUser.lastName} has been named manager.`
+    addActivityLogEntry(project, activityType, description)
 
     res.status(200).json({ message: 'Project manager added successfully.' });
 });
@@ -247,7 +283,11 @@ const deleteManager = asyncHandler(async (req, res) => {
 
     // Pass the notification data to the createNotification controller
     req.body = { targetUserId, title, body };
-    await createNotification(req, res, next);
+    await createNotification(req);
+
+    const activityType = 'Removed Manager'
+    const description = `${targetUser.firstName} ${targetUser.lastName} is no longer manager`
+    addActivityLogEntry(project, activityType, description)
 
     res.status(200).json({ message: 'Project manager removed successfully.' });
 });
@@ -260,26 +300,37 @@ const addMember = asyncHandler(async (req, res) => {
     const userRole = req.userRole
     const projId = req.projId
     
-    if (userRole !== 'owner') {
-      return res.status(403).json({ message: 'Only owners can add members to the project.' });
+    if (userRole !== 'owner' || userRole !=='manager') {
+      return res.status(403).json({ message: 'Only managers can add members to the project.' });
     }
 
     const project = await Project.findById(projId).exec()
-    const owner = await User.findById(userId).select('firstName lastName').exec();
+    const user = await User.findById(userId).select('firstName lastName').exec();
 
     if (!project) {
       return res.status(404).json({ message: 'Project not found.' });
     }
 
-    const targetUser = await User.findById(targetUserId);
+    const targetUser = await User.findById(targetUserId).exec();
     if (!targetUser) {
       return res.status(400).json({ message: 'Invalid target user.' });
+    }
+
+    // Check if a similar proposal notification already exists
+    const existingNotification = await Notification.findOne({
+    'proposal.sender': userId,
+    'proposal.targetId': projId,
+    'proposal.message': 'joinProject'
+    });
+
+    if (existingNotification) {
+      return res.status(400).json({ message: 'Similar proposal notification already exists.' });
     }
 
     // Send notification to the targeted user if not already present in the team
     if (!project.members.includes(targetUserId)) {
       const title = 'Join my team!';
-      const body = `${owner.firstName} ${userId.lastName}, owner of ${project.title} has asked you to join his team`;
+      const body = `${user.firstName} ${user.lastName}, manager of ${project.title} has asked you to join his team`;
       const proposal = {
         sender : userId,
         targetId : projId,
@@ -293,17 +344,18 @@ const addMember = asyncHandler(async (req, res) => {
     }
 
     // Pass the notification data to the createNotification controller
-    try {
-      await createNotification(req);
-      res.status(200).json({ message: 'Member added successfully' })
-    } catch (error) {
-      console.error('Error creating notification:', error);
-      res.status(500).json({ message: 'An error occurred while adding the member' });
-    }
+    await createNotification(req);
+
+    const activityType = 'Sent add member notification'
+    const description = `${targetUser.firstName} ${targetUser.lastName} has been asked to join by ${user.firstName} ${user.lastName}.`
+    addActivityLogEntry(project, activityType, description)
+
+    res.status(200).json({ message: 'Member added successfully' })
+
 });
 
 // DELETE REMOVE MEMBER
-const removeMember = asyncHandler(async (req, res, next) => {
+const removeMember = asyncHandler(async (req, res) => {
     const { targetUserId } = req.body;
     const projId = req.projId
     const userRole = req.userRole
@@ -337,7 +389,7 @@ const removeMember = asyncHandler(async (req, res, next) => {
     }
 
     // Update the project with the modified authorlessNotes
-    await Project.findByIdAndUpdate(projId, { $set: { authorlessNotes } });
+    await Project.findByIdAndUpdate(projId, { $push: { authorlessNotes: { $each: authorlessNotes } } });
 
     // Remove the targetUserId from the project members array
     const indexToRemove = project.members.indexOf(targetUserId);
@@ -353,56 +405,157 @@ const removeMember = asyncHandler(async (req, res, next) => {
 
     // Pass the notification data to the createNotification controller
     req.body = { targetUserId, title, body };
-    await createNotification(req, res, next);
+    await createNotification(req);
+
+    const caller = await User.findById(req.userId).select('firstName lastName').exec();
+
+    const activityType = 'Removed Member'
+    const description = `${targetUser.firstName} ${targetUser.lastName} has been removed by ${caller.firstName} ${caller.lastName}.`
+    addActivityLogEntry(project, activityType, description)
 
     return res.status(200).json({ message: 'Member removed successfully' });
 });
 
 // POST CREATE EXPENSE
-const createExpense = asyncHandler(async (req, res, next) => {
-  try {
-    const { projId, userRole } = req.body;
-    
-    // Check if the userRole is 'manager'
-    if (userRole !== 'manager' || userRole !== 'owner') {
-      return res.status(403).json({ message: 'You are not authorized to perform this action.' });
-    }
-
-    const { expenseName, cost, taskReference } = req.body;
-
-    const project = await Project.findById(projId);
-
-    if (!project) {
-      return res.status(404).json({ message: 'Project not found' });
-    }
-
-    // Create the expense object
-    if ( !expenseName || !cost ) {
-      res.status(400).json({ message: 'Expense name or cost invalid! Please fill in the fields.'})
-    } else {
-      const newExpense = { expenseName, cost };
-    }
-
-    // If taskReference is provided, find the task and add its title to the expense
-    if (taskReference) {
-      const task = await Task.findById(taskReference);
-      if (!task) {
-        return res.status(404).json({ message: 'Task not found' });
-      }
-      newExpense.taskReference = task.title;
-    }
-
-    // Add the new expense to the project's expenses array
-    project.expenses.unshift(newExpense);
-    await project.save();
-
-    return res.status(200).json({ message: 'Expense created successfully', expense: newExpense });
-  } catch (error) {
-    return next(error);
+const createExpense = asyncHandler(async (req, res) => {
+  
+  const userRole = req.userRole
+  const projId = req.projId
+  
+  // Check if the userRole is 'manager'
+  if (userRole !== 'manager' || userRole !== 'owner') {
+    return res.status(403).json({ message: 'You are not authorized to perform this action.' });
   }
+
+  const { expenseName, cost, taskReference } = req.body;
+
+  const project = await Project.findById(projId);
+
+  if (!project) {
+    return res.status(404).json({ message: 'Project not found' });
+  }
+
+  let newExpense
+
+  // Create the expense object
+  if ( !expenseName || !cost ) {
+    res.status(400).json({ message: 'Expense name or cost invalid! Please fill in the fields.'})
+  } else {
+    newExpense = { expenseName, cost };
+  }
+
+  // If taskReference is provided, find the task and add its title to the expense
+  if (taskReference) {
+    const task = await Task.findById(taskReference);
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+    newExpense.taskReference = task.title;
+  }
+
+  // Add the new expense to the project's expenses array
+  project.expenses.unshift(newExpense);
+  await project.save();
+
+  const user = await User.findById(req.userId).select('firstName lastName').exec();
+  const activityType = 'New Expense'
+  const description = `${user.firstName} ${user.lastName} added ${expenseName}`
+  if (taskReference) {
+    description += ` in reference to ${taskReference}`
+  }
+  addActivityLogEntry(project, activityType, description)
+
+  return res.status(200).json({ message: 'Expense created successfully', expense: newExpense });
 });
 
-  
+// UPDATE UPDATE EXPENSE
+const updateExpense = asyncHandler(async (req, res) => {
+
+  const userRole = req.userRole;
+  const projId = req.projId;
+
+  // Check if the userRole is 'manager' or 'owner'
+  if (userRole !== 'manager' && userRole !== 'owner') {
+    return res.status(403).json({ message: 'You are not authorized to perform this action.' });
+  }
+
+  const { expenseIndex, expenseName, cost, taskReference } = req.body;
+
+  const project = await Project.findById(projId);
+
+  if (!project) {
+    return res.status(404).json({ message: 'Project not found' });
+  }
+
+  // Check if the provided expenseIndex is within bounds
+  if (expenseIndex < 0 || expenseIndex >= project.expenses.length) {
+    return res.status(400).json({ message: 'Invalid expense index.' });
+  }
+
+  const updatedExpense = project.expenses[expenseIndex];
+
+  // Update the expense properties if provided
+  if (expenseName) {
+    updatedExpense.expenseName = expenseName;
+  }
+  if (cost) {
+    updatedExpense.cost = cost;
+  }
+  if (taskReference) {
+    updatedExpense.taskReference = taskReference;
+  }
+
+  await project.save();
+
+  const user = await User.findById(req.userId).select('firstName lastName').exec();
+  const activityType = 'Updated Expense'
+  const description = `${user.firstName} ${user.lastName} updated ${expenseName}`
+  if (taskReference) {
+    description += ` in reference to ${taskReference}`
+  }
+  addActivityLogEntry(project, activityType, description)
+
+  return res.status(200).json({ message: 'Expense updated successfully', expense: updatedExpense });
+});
+
+// DELETE EXPENSE
+const deleteExpense = asyncHandler(async (req, res) => {
+
+  const userRole = req.userRole;
+  const projId = req.projId;
+  const { expenseIndex } = req.body; // Assuming you're sending the index in the request body
+
+  // Check if the userRole is 'manager' or 'owner'
+  if (userRole !== 'manager' && userRole !== 'owner') {
+    return res.status(403).json({ message: 'You are not authorized to perform this action.' });
+  }
+
+  const project = await Project.findById(projId);
+
+  if (!project) {
+    return res.status(404).json({ message: 'Project not found' });
+  }
+
+  // Check if the provided expenseIndex is within bounds
+  if (expenseIndex < 0 || expenseIndex >= project.expenses.length) {
+    return res.status(400).json({ message: 'Invalid expense index.' });
+  }
+
+  const expenseName = project.expenses[expenseIndex].expenseName
+
+  // Remove the expense from the project's expenses array
+  const removedExpense = project.expenses.splice(expenseIndex, 1)[0];
+  await project.save();
+
+  const user = await User.findById(req.userId).select('firstName lastName').exec();
+  const activityType = 'Deleted Expense'
+  const description = `${user.firstName} ${user.lastName} deleted ${expenseName}`
+  addActivityLogEntry(project, activityType, description)
+
+  return res.status(200).json({ message: 'Expense removed successfully', expense: removedExpense });
+});
+
+
   module.exports = { 
     createProject,
     getProject,
@@ -411,5 +564,8 @@ const createExpense = asyncHandler(async (req, res, next) => {
     addManager,
     deleteManager,
     addMember,
-    removeMember
+    removeMember,
+    createExpense,
+    updateExpense,
+    deleteExpense
   };

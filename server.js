@@ -12,6 +12,9 @@ const corsOptions = require('./config/corsOptions')
 const jwt = require('jsonwebtoken')
 const cookieParser = require('cookie-parser');
 
+const cron = require ('node-cron')
+const { exec } = require('child_process')
+
 const connectDB = require('./config/dbConn')
 const mongoose = require('mongoose')
 const PORT = process.env.PORT || 3500 //get port from global variables if exists
@@ -56,6 +59,18 @@ app.all('*', (req, res) => { //all pages
 } )
 
 app.use(errorHandler)
+
+// Schedule the cleanup script to run every day at midnight - for cleaning old notifications from users
+cron.schedule('0 0 * * *', () => {
+    const cleanupScriptPath = path.join(__dirname, 'utilities', 'cleanupExpiredNotifications.js');
+    exec(`node ${cleanupScriptPath}`, (error, stdout, stderr) => {
+      if (error) {
+        console.error('Error during cleanup script:', error);
+        return;
+      }
+      console.log('Cleanup script executed:', stdout);
+    });
+  });
 
 // mongo listener for connecting to the db
 mongoose.connection.once('open', () => {

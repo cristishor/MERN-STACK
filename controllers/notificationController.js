@@ -2,119 +2,167 @@ const User = require('../models/User')
 const Project = require('../models/Project')
 const Notification = require('../models/Notification');
 const asyncHandler = require('express-async-handler')
+const { addActivityLogEntry } = require('../utilities/activityLog')
 
 const sortNotifications = async (user) => {
 
   const notificationObjects = await Notification.find({ _id: { $in: user.notifications } }).exec();
 
-    const unseenNotifications = notificationObjects.filter((notif) => !notif.seen);
-    const seenNotifications = notificationObjects.filter((notif) => notif.seen);
+  const unseenNotifications = notificationObjects.filter((notif) => !notif.seen);
+  const seenNotifications = notificationObjects.filter((notif) => notif.seen);
 
-    // Sort seen and unseen notifications by newest first
-    unseenNotifications.sort((a, b) => b.createdAt - a.createdAt);
-    seenNotifications.sort((a, b) => b.createdAt - a.createdAt);
+  // Sort seen and unseen notifications by newest first
+  unseenNotifications.sort((a, b) => b.createdAt - a.createdAt);
+  seenNotifications.sort((a, b) => b.createdAt - a.createdAt);
 
-    const sortedNotifications = [...unseenNotifications, ...seenNotifications]
-    console.log(sortedNotifications)
-    user.notifications = sortedNotifications.map((notif) => notif._id); // Only store IDs
+  const sortedNotifications = [...unseenNotifications, ...seenNotifications]
+
+  user.notifications = sortedNotifications.map((notif) => notif._id); // Only store IDs
     
-    await user.save();
-    };
+  await user.save();
+};
   
-const getNotification = async (req, res) => {
 
-}
+const getNotification = asyncHandler(async (req, res) => {
+  const notificationId = req.params.notifId;
+
+  try {
+    const notification = await Notification.findById(notificationId);
+
+    if (!notification) {
+      return res.status(404).json({ message: 'Notification not found' });
+    }
+
+    const { title, body, proposal } = notification;
+
+    res.status(200).json({ title, body, proposal });
+  } catch (error) {
+    res.status(500).json({ message: 'Error retrieving notification', error: error.message });
+  }
+});
+
 
 const createNotification = async (req) => {
-      const { targetUserId, title, body, proposal } = req.body;
+  const { targetUserId, title, body, proposal } = req.body;
 
-      const targetUser = await User.findById(targetUserId);
-      if (!targetUser) {
-        throw new Error('Target user not found');
-      }
+  const targetUser = await User.findById(targetUserId);
+  if (!targetUser) {
+    throw new Error('Target user not found');
+  }
   
-      const notification = new Notification({
-        title,
-        body,
-        proposal: null,
-      });
+  const notification = new Notification({
+    title: title,
+    body: body,
+    proposal: proposal || null,
+  });
 
-    if (proposal) { 
-       notification.proposal = proposal
+  await notification.save();
+
+  targetUser.notifications.unshift(notification._id); //add it first in the array as it is the latest.
+  await targetUser.save();
+
+  return { message: 'Notification sent successfully' };
+}
+  
+
+const updateNotification = asyncHandler( async (req, res) => {
+    const { wasSeen, response } = req.body;
+    const notificationId = req.params.notifId;
+    const userId = req.userId;
+
+    const user = await User.findById(userId).exec();
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    await notification.save();
-
-    targetUser.notifications.unshift(notification._id); //add it first in the array as it is the latest.
-    await targetUser.save();
-
-    return { message: 'Notification sent successfully' };
+    const notification = await Notification.findById(notificationId).exec()
+    if (!notification) {
+      return res.status(404).json({ message: 'Notification not found' });
     }
-  
 
-const updateNotification = async (req, res) => {
-    try {
-      const { wasSeen, response } = req.body;
-      const notificationId = req.params.notifId;
-      const userId = req.userId;
-  
-      const user = await User.findById(userId).exec();
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      const notification = await Notification.findById(notificationId).exec()
-      if (!notification) {
-        return res.status(404).json({ message: 'Notification not found' });
-      }
- 
-      // If the notification has proposal set to true and there's a response, update the "seen" status
-      if (notification.proposal && response) {
+    // If the notification has proposal set to true and there's a response, update the "seen" status
+    if (notification.proposal && response) {
 
-        notification.seen = true;
-        const projectId = notification.proposal.targetId;
+      notification.seen = true;
+      const projectId = notification.proposal.targetId;
 
-        if (response === true) {
-          const project = await Project.findById(projectId);
-          if (project) {
-            project.members.push(userId);
-            await project.save();
+      if (response === true) {
+        const project = await Project.findById(projectId).exec();
 
-            const newTitle = ''
-            const newBody = ''
+        if (notification.proposal.message === 'joinProject' && project && !project.members.includes(userId)) {
+          
+          project.members.push(userId);
+          await project.save();
 
-            if (notification.proposal.message === 'joinProject') {
-                newTitle = 'A new member joined your project!'
-                newBody = `${user.firstName} ${user.lastName} has joined your project: ${project.title}`
-            }
-            
-            targetUserId = project.owner
+          targetUserId = project.owner
 
-            req.body = { targetUserId, newTitle, newBody };
-            await createNotification(req, res, next);
+          const newTitle = 'A new member joined your project!'
+          const newBody = `${user.firstName} ${user.lastName} has joined your project: ${project.title}`
 
-          }
+          const notificationData = {
+            targetUserId,
+            title: newTitle,
+            body: newBody
+          };
+        
+          await createNotification({body: notificationData});
+
+          const activityType = 'New member added'
+          const description = `${user.firstName} ${user.lastName} joined the project.`
+          addActivityLogEntry(project, activityType, description)
+
+        } else if (notification.proposal.message === 'managerAskJoinProject') {
+          
+
+        } else {
+          return res.status(400).json({ message: 'No project || Target user already a member || Invalid proposal.' })
         }
-    }
-      
-      if (wasSeen) {
-        notification.seen = true;
       }
-  
-      await notification.save()
-  
-      await sortNotifications(user);
-  
-      return res.status(200).json({ message: 'Notification updated successfully' });
-    } catch (error) {
-      return (error);
-    }
-  };
-  
-  
 
-  module.exports = {
-    createNotification,
-    updateNotification,
-    getNotification
-  };
+    // delete notification here!
+    await Notification.findByIdAndDelete(notificationId);
+
+  } else if (wasSeen) {
+    notification.seen = true;
+    await notification.save()
+  }
+
+  await sortNotifications(user);
+
+  return res.status(200).json({ message: 'Notification updated successfully' });
+})
+
+  
+const deleteNotification = asyncHandler(async (req, res) => {
+  const userId = req.userId;
+  const notificationId = req.params.notifId;
+
+  // Find the user and remove the reference to the notification
+  const user = await User.findById(userId).exec();
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  if (!user.notifications.includes(notificationId)) {
+    return res.status(404).json({ message: 'Notification not found' });
+  }
+
+  user.notifications.pull(notificationId);
+  await user.save();
+
+  // Delete the notification
+  const deletedNotification = await Notification.findByIdAndDelete(notificationId);
+  if (!deletedNotification) {
+    return res.status(404).json({ message: 'Notification not found+' });
+  }
+
+  return res.status(200).json({ message: 'Notification deleted successfully' });
+});
+
+
+module.exports = {
+  createNotification,
+  updateNotification,
+  getNotification,
+  deleteNotification
+};

@@ -23,7 +23,7 @@ const projectSchema = new mongoose.Schema({
   expenses: [{
     expenseName: {type: String, required: true},
     cost: {type: Number, required: true},
-    taskRefference: {type: String}
+    taskReference: {type: String}
   }], 
   endDate: { type: Date },
  

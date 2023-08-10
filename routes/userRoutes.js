@@ -35,6 +35,7 @@ router.route('/:userId')
   .delete(authMiddleware, usersController.deleteUser)
 
 router.route('/:userId/:notifId')
-//  .get(authMiddleware, notificationController.getNotification)
+  .get(authMiddleware, notificationController.getNotification)
   .put(authMiddleware, notificationController.updateNotification)
+  .delete(authMiddleware, notificationController.deleteNotification)
 module.exports = router
