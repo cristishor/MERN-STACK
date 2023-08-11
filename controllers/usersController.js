@@ -3,9 +3,7 @@ const Project = require('../models/Project');
 const Task = require('../models/Task');
 const asyncHandler = require('express-async-handler') //module used to help with not having too many try catch blocks as we use async methods with mongoose to save or delete data or even find data from mongodb
 const bcrypt = require('bcrypt') //module used to hash the password before we save it
-const { checkEmailFormat, checkPasswordFormat } = require('../utilities/regexCheck');
-const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser');
+const { checkEmailFormat, checkPasswordFormat } = require('../utilities/regexCheck'); 
 const { createToken } = require('../utilities/jwt')
 
 //controllers have a req and a res, not a next because it should be the end of the line where we process the final data and process a res back

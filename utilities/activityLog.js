@@ -17,6 +17,7 @@ const addActivityLogEntry = (project, activityType, description) => {
     activityType,
     description: fullDescription,
   });
+
 };
 
 module.exports = { addActivityLogEntry }
