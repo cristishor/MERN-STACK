@@ -26,19 +26,23 @@ const sortNotifications = async (user) => {
 const getNotification = asyncHandler(async (req, res) => {
   const notificationId = req.params.notifId;
 
-  try {
     const notification = await Notification.findById(notificationId);
 
     if (!notification) {
       return res.status(404).json({ message: 'Notification not found' });
     }
 
+    const user = await User.findById(req.userId).select('notifications').exec()
+    const notifExists = user.notifications.some(notifId => notifId.equals(notificationId) )
+
+    if(!notifExists){
+      return res.status(404).json({ message: 'Notification not found' })
+    }
+
     const { title, body, proposal } = notification;
 
     res.status(200).json({ title, body, proposal });
-  } catch (error) {
-    res.status(500).json({ message: 'Error retrieving notification', error: error.message });
-  }
+
 });
 
 
@@ -86,13 +90,15 @@ const updateNotification = asyncHandler( async (req, res) => {
       notification.seen = true;
       const projectId = notification.proposal.targetId;
 
-      if (response === true) {
         const project = await Project.findById(projectId).exec();
 
         if (notification.proposal.message === 'joinProject' && project && !project.members.includes(userId)) {
           
           project.members.push(userId);
           await project.save();
+
+          user.projectsInvolved.push(projectId)
+          await user.save()
 
           targetUserId = project.owner
 
@@ -117,17 +123,27 @@ const updateNotification = asyncHandler( async (req, res) => {
         } else {
           return res.status(400).json({ message: 'No project || Target user already a member || Invalid proposal.' })
         }
-      }
 
     // delete notification here!
+    user.notifications.pull(notificationId);
+    await user.save();
+
+    await Notification.findByIdAndDelete(notificationId);
+
+  } else  if (response === false) {
+    user.notifications.pull(notificationId);
+    await user.save();
+
     await Notification.findByIdAndDelete(notificationId);
 
   } else if (wasSeen) {
     notification.seen = true;
     await notification.save()
-  }
+    await sortNotifications(user);
 
-  await sortNotifications(user);
+  } else {
+    return res.status(400).json({ message: 'Notification not updated. '})
+  }
 
   return res.status(200).json({ message: 'Notification updated successfully' });
 })

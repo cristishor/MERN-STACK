@@ -2,6 +2,7 @@ const Project = require('../models/Project');
 const User = require('../models/User');
 const Note = require('../models/Note')
 const Task = require('../models/Task')
+const Notification = require('../models/Notification')
 const asyncHandler = require('express-async-handler');
 const { checkEmailFormat } = require('../utilities/regexCheck');
 const { createNotification } = require('./notificationController')
@@ -294,13 +295,13 @@ const deleteManager = asyncHandler(async (req, res) => {
 
 // POST ADD MEMBER
 const addMember = asyncHandler(async (req, res) => {
-    const { targetUserId } = req.body;
+    const { targetEmail } = req.body;
 
     const userId = req.userId
     const userRole = req.userRole
     const projId = req.projId
-    
-    if (userRole !== 'owner' || userRole !=='manager') {
+
+    if (userRole !== 'owner' && userRole !=='manager') {
       return res.status(403).json({ message: 'Only managers can add members to the project.' });
     }
 
@@ -311,7 +312,7 @@ const addMember = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: 'Project not found.' });
     }
 
-    const targetUser = await User.findById(targetUserId).exec();
+    const targetUser = await User.findOne({ email: targetEmail }).exec()
     if (!targetUser) {
       return res.status(400).json({ message: 'Invalid target user.' });
     }
@@ -326,18 +327,18 @@ const addMember = asyncHandler(async (req, res) => {
     if (existingNotification) {
       return res.status(400).json({ message: 'Similar proposal notification already exists.' });
     }
-
+    const targetId = targetUser._id
     // Send notification to the targeted user if not already present in the team
-    if (!project.members.includes(targetUserId)) {
+    if (!project.members.includes(targetId)) {
       const title = 'Join my team!';
       const body = `${user.firstName} ${user.lastName}, manager of ${project.title} has asked you to join his team`;
       const proposal = {
         sender : userId,
         targetId : projId,
         message : 'joinProject'
-      }
+      } 
     
-      req.body = { targetUserId, title, body, proposal };
+      req.body = { targetId, title, body, proposal };
 
     } else {
       return res.status(400).json({ message: 'Target user already in team. '})
@@ -555,6 +556,10 @@ const deleteExpense = asyncHandler(async (req, res) => {
   return res.status(200).json({ message: 'Expense removed successfully', expense: removedExpense });
 });
 
+// DELETE PROJECT
+const deleteProject = asyncHandler(async (req, res) => {
+
+})
 
   module.exports = { 
     createProject,
@@ -567,5 +572,6 @@ const deleteExpense = asyncHandler(async (req, res) => {
     removeMember,
     createExpense,
     updateExpense,
-    deleteExpense
+    deleteExpense,
+    deleteProject
   };

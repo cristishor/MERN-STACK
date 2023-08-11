@@ -16,6 +16,7 @@ router.route('/new/:userId')
 router.route('/:projectId/:userId')
   .get(authMiddleware, projectAccess, projectController.getProject)
   .put(authMiddleware, projectAccess, projectController.updateProject)
+  .delete(authMiddleware, projectAccess, projectController.deleteProject)
 
 // update Owner
 router.route('/:projectId/:userId/owner')
@@ -30,6 +31,13 @@ router.route('/:projectId/:userId/manager')
 router.route('/:projectId/:userId/member')
   .post(authMiddleware, projectAccess, projectController.addMember)
   .delete(authMiddleware, projectAccess, projectController.removeMember)
+
+// expense routes 
+router.route('/:projectId/:userId/expense')
+  .post(authMiddleware, projectAccess, projectController.createExpense)
+  .put(authMiddleware, projectAccess, projectController.updateExpense)
+  .delete(authMiddleware, projectAccess, projectController.deleteExpense)
+  
 
 
 

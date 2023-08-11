@@ -19,4 +19,4 @@ const addActivityLogEntry = (project, activityType, description) => {
   });
 };
 
-module.exports = addActivityLogEntry;
+module.exports = { addActivityLogEntry }
