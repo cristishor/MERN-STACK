@@ -3,6 +3,7 @@ const router = express.Router()
 const path = require('path');
 
 const projectController = require('../controllers/projectController')
+const taskController = require('../controllers/taskController')
 
 const authMiddleware = require('../middleware/authMiddleware')
 const projectAccess = require('../middleware/projectAccess')
@@ -37,7 +38,16 @@ router.route('/:projectId/:userId/expense')
   .post(authMiddleware, projectAccess, projectController.createExpense)
   .put(authMiddleware, projectAccess, projectController.updateExpense)
   .delete(authMiddleware, projectAccess, projectController.deleteExpense)
-  
+
+
+// note routes 
+router.route('/:projectId/:userId/note')
+  .post(authMiddleware, projectAccess, taskController.createNote)
+  .get(authMiddleware, projectAccess, taskController.getNotes)
+router.route('/:projectId/:userId/note/:noteId')
+  .put(authMiddleware, projectAccess, taskController.updateNote)
+  .delete(authMiddleware, projectAccess, taskController.deleteNote)
+
 
 
 

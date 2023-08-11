@@ -10,7 +10,6 @@ const bcrypt = require('bcrypt')
 const { checkEmailFormat } = require('../utilities/regexCheck');
 const { createNotification } = require('./notificationController')
 const { addActivityLogEntry } = require('../utilities/activityLog');
-const { it } = require('date-fns/locale');
 
 
 // CREATE NEW PROJECT

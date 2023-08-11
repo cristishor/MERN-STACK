@@ -3,7 +3,6 @@ const router = express.Router()
 const path = require('path')
 
 const authMiddleware = require('../middleware/authMiddleware')
-const projectAccess = require('../middleware/projectAccess')
 const { regexCheckEmail, regexCheckPassword } = require('../controllers/usersController')
 
 const usersController = require('../controllers/usersController')
