@@ -224,7 +224,7 @@ const updateProject = asyncHandler(async (req, res) => {
 
     const activityType = 'Project Updated'
     const log = `The owner has made the following changes:\n ${descriptionLog}`
-    addActivityLogEntry(project, activityType, { description:log } )
+    addActivityLogEntry(project, activityType, log )
     await project.save();
 
     res.status(200).json({ message: 'Project updated successfully.' });

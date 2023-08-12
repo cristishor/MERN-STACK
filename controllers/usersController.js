@@ -1,20 +1,15 @@
 const User = require('../models/User')
 const Project = require('../models/Project');
 const Task = require('../models/Task');
+const Note = require('../models/Note')
+const Notification = require('../models/Notification')
 const asyncHandler = require('express-async-handler') //module used to help with not having too many try catch blocks as we use async methods with mongoose to save or delete data or even find data from mongodb
 const bcrypt = require('bcrypt') //module used to hash the password before we save it
 const { checkEmailFormat, checkPasswordFormat } = require('../utilities/regexCheck'); 
 const { createToken } = require('../utilities/jwt')
 
-//controllers have a req and a res, not a next because it should be the end of the line where we process the final data and process a res back
 
-//TABLE OF CONTENTS:
-// 1. regexCheckEmail
-// 2. regexCheckPassword
-// 3. createNewUser
-// 4.
-//
-
+// regex check email
 const regexCheckEmail = (req, res) => {
     const { email } = req.body;
   
@@ -26,8 +21,6 @@ const regexCheckEmail = (req, res) => {
   };
 
 // regex check password
-// @route POST /check/password
-// @access Private?
 const regexCheckPassword = (req, res) => {
     const { password } = req.body;
   
@@ -38,10 +31,8 @@ const regexCheckPassword = (req, res) => {
     }
 };
 
-// @desc Create new user
-// @route POST /users
-// @access Private
-const createNewUser = asyncHandler(async(req, res) => {
+// CREATE NEW USER
+const createNewUser = asyncHandler(async (req, res) => {
     const { email, password, firstName, lastName, contactInformation } = req.body
     let profilePicture = req.body.profilePicture ?? null
     let {phone, address} = contactInformation ?? {phone: null, address: null}
@@ -99,10 +90,8 @@ const createNewUser = asyncHandler(async(req, res) => {
     
 })
 
-//LOG IN USER
-//@route POST /login
-//@access All
-const logInUser = asyncHandler(async(req, res) => {
+// LOG IN USER
+const logInUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   // Check if email and password are provided
@@ -146,50 +135,88 @@ const logInUser = asyncHandler(async(req, res) => {
   res.status(200).json({success: true, token });
 })
 
-//NOT USED -> awthMiddleware handles it!
-const logOutUser = asyncHandler(async (req, res) => {
-  // Clear the authentication cookie by setting it to an empty value and expiring it immediately
-  res.cookie('jwt', '', { maxAge: 0 });
+// GET USER
+const getUser = asyncHandler(async (req, res) => {
 
-  res.status(200).json({ message: 'Logout successful' });
-});
-
-
-
-const getUser = async (req, res) => {
-
-  // Get the userId from the URL params
+  // Get the userId from the URL params in the middleware -> userId
   const userId = req.userId;
 
   // You can access the authenticated user's information from req.user, as the authMiddleware sets it
   const authenticatedUser = await User.findById(userId);
 
+  
+  const projects = await Project.aggregate([
+    {
+      $match: {
+        _id: { $in: authenticatedUser.projectsInvolved },
+      },
+    },
+    {
+      $lookup: {
+        from: 'tasks', // Replace with the actual collection name of tasks
+        localField: 'tasks',
+        foreignField: '_id',
+        as: 'tasksData',
+      },
+    },
+    {
+      $addFields: {
+        tasksAssigned: {
+          $size: {
+            $filter: {
+              input: '$tasksData',
+              cond: { $eq: ['$$this.assignee', userId] },
+            },
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        title: 1,
+        tasksAssigned: 1,
+      },
+    },
+  ]);
+
+  const tasks = await Task.find({ assignee: userId })
+    .populate('title deadline description')
+    .sort({ status: -1, deadline: 1, updatedAt: 1 }) // Sort by status descending and deadline ascending
+    .exec();
+  
   // Assuming you want to send back some data to the client
   const responseData = {
-    message: `Welcome to the home page, ${authenticatedUser.firstName} ${authenticatedUser.lastName}!`,
-    userId: userId,
+    message: `Welcome to the home page, ${authenticatedUser.firstName}!`,
+    userId: userId, // delete when finishing frontend
+    firstName: authenticatedUser.firstName,
+    profilePicture: authenticatedUser.profilePicture,
+    projectsInvolved: projects,
+    tasks: tasks
+  };
+  res.json(responseData);
+})
+
+// GET USER - additional data
+const getUserPlus = asyncHandler(async (req, res) => {
+
+  const userId = req.userId;
+
+  const authenticatedUser = await User.findById(userId);
+
+  const responseData = {
     firstName: authenticatedUser.firstName,
     lastName: authenticatedUser.lastName,
     profilePicture: authenticatedUser.profilePicture,
     contactInformation: {
         phone: authenticatedUser.contactInformation.phone,
         address: authenticatedUser.contactInformation.address,
-    },
-    notifications: authenticatedUser.notifications,
-    projectsOwned: authenticatedUser.projectsOwned,
-    projectsInvolved: authenticatedUser.projectsInvolved,
-    tasksAssigned: authenticatedUser.tasksAssigned
-  };
+    }};
   res.json(responseData);
-};
+})
 
-//////////////////
-
-
-// @desc Update a user
-// @route PATCH /users
-// @access Private
-const updateUser = asyncHandler(async(req, res) => {
+// UPDATE USER
+const updateUser = asyncHandler(async (req, res) => {
   const {oldPassword, newPassword, firstName, lastName, profilePicture, phone, address} = req.body
 
   try{
@@ -209,6 +236,11 @@ const updateUser = asyncHandler(async(req, res) => {
           return res.status(401).json({ message: 'Incorrect old password' }); 
         }
       }
+    }
+
+    // Check if all fields are empty
+    if (!newPassword && !firstName && !lastName && !profilePicture && !phone && !address) {
+      return res.status(400).json({ message: 'No fields to update.' });
     }
 
     // Update user information
@@ -232,11 +264,6 @@ const updateUser = asyncHandler(async(req, res) => {
         user.contactInformation.phone = phone;
       }
 
-    // Check if all fields are empty
-    if (!newPassword && !firstName && !lastName && !profilePicture && !phone && !address) {
-      return res.status(400).json({ message: 'No fields to update.' });
-    }
-
     // Save the updated user
     await user.save();
     returnUser = await User.findById(req.userId).select('-password');
@@ -247,61 +274,79 @@ const updateUser = asyncHandler(async(req, res) => {
 }
 });
 
-// @desc Delete a users
-// @route DELETE /users
-// @access Private
-const deleteUser = asyncHandler(async(req, res) => {
+// DELETE USER
+const deleteUser = asyncHandler(async (req, res) => {
   const { password } = req.body
   const userId = req.userId
     
-  const user = await User.findById(userId).select('+password');
-  try{ 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+  const user = await User.findById(userId).select('+password').exec()
 
-    if (!password) {
-      return res.status(401).json({ message: 'Password needed for authorization' });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Incorrect password' });
-    }
-
-      // Delete all projects owned by the user
-    for (const projectId of user.projectsOwned) {
-             // *********************************************** FIRST: GO THROUGH MEMBERS IN PROJID AND DELETE ALL
-      await Project.findByIdAndDelete(projectId);
-    }
-
-      // Find all projects where the user is a member
-    const projects = user.projectsInvolved
-      // Update the members array in each project to remove the user
-    await Promise.all(
-      projects.map(project => Project.findByIdAndUpdate(project._id, { $pull: { members: userId } }))
-    );
-
-    // If needed, update tasks to remove the user from the assignee field
-    await Task.updateMany({ assignee: userId }, { $unset: { assignee: 1 } });
-
-
-    // Finally, delete the user
-    await User.findByIdAndDelete(userId);
-    
-  
-  } catch (error) {
-    console.error('Error deleting user:', error);
-    res.status(500).json({ message: 'Error deleting user' });
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
   }
+
+  if (!password) {
+    return res.status(401).json({ message: 'Password needed for authorization' });
+  }
+
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    return res.status(401).json({ message: 'Incorrect password' });
+  }
+
+    
+  // Check if there are any projects with more than one member
+  const projectsOwned = await Project.find({ owner: userId });
+  for (const project of projectsOwned) {
+    if (project.members.length > 1) {
+      return res.status(400).json({ message: 'Transfer ownership before deleting the account.' });
+    }
+  }
+
+  // Update tasks
+  await Task.updateMany({ assignee: userId }, { $unset: { assignee: 1 } });
+
+  // Loop through projects involved
+  for (const projId of user.projectsInvolved) {
+    const project = await Project.findById(projId).exec()
+
+    // Collect notes content and update authorlessNotes
+    const authorlessNotes = [];
+    for (const noteId of project.notes) {
+      const note = await Note.findById(noteId).exec();
+      if (note.createdBy.toString() === userId) {
+        authorlessNotes.push({
+          removedCreator: `${user.firstName} ${user.lastName}`,
+          noteBody: note.content,
+        });
+      }
+    }
+
+    // Update members, and managers
+    project.members = project.members.filter(memberId => memberId.toString() !== userId);
+    if (project.projectManagers.includes(userId)) {
+      project.projectManagers = project.projectManagers.filter(managerId => managerId.toString() !== userId);
+    }
+
+    await project.save();
+  }
+
+  // Loop through projects owned and delete
+  for (const projId of user.projectsOwned) {
+    await Project.findByIdAndDelete(projId);
+  }
+
+  const notificationsToDelete = await Notification.find({ userId });
+  for (const notification of notificationsToDelete) {
+    await notification.remove();
+  }
+
+  // Finally, delete the user
+  await User.findByIdAndDelete(userId);
+    
 
   return res.status(200).json({ message: 'User deleted successfully' });
 })
-
-// regex check email
-// @route POST /check/email
-// @access Private?
-
 
 
 module.exports = {
@@ -309,8 +354,8 @@ module.exports = {
     regexCheckEmail,
     regexCheckPassword,
     logInUser,
-    logOutUser,
     getUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    getUserPlus
 }

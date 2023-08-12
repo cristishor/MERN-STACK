@@ -23,27 +23,24 @@ const sortNotifications = async (user) => {
 };
   
 
-const getNotification = asyncHandler(async (req, res) => {
-  const notificationId = req.params.notifId;
+const getNotifications = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.userId).populate('notifications').exec();
 
-    const notification = await Notification.findById(notificationId);
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
 
-    if (!notification) {
-      return res.status(404).json({ message: 'Notification not found' });
-    }
+  const notifications = user.notifications;
+  if(!notifications)
+  {
+    res.status(404).json({ message: 'No notifications found!'})
+  } 
 
-    const user = await User.findById(req.userId).select('notifications').exec()
-    const notifExists = user.notifications.some(notifId => notifId.equals(notificationId) )
-
-    if(!notifExists){
-      return res.status(404).json({ message: 'Notification not found' })
-    }
-
-    const { title, body, proposal } = notification;
-
-    res.status(200).json({ title, body, proposal });
-
+  res.status(200).json({ notifications });
 });
+
+module.exports = { getNotifications };
+
 
 
 const createNotification = async (req) => {
@@ -116,6 +113,7 @@ const updateNotification = asyncHandler( async (req, res) => {
           const activityType = 'New member added'
           const description = `${user.firstName} ${user.lastName} joined the project.`
           addActivityLogEntry(project, activityType, description)
+          await project.save();
 
         } else if (notification.proposal.message === 'managerAskJoinProject') {
           
@@ -125,7 +123,7 @@ const updateNotification = asyncHandler( async (req, res) => {
         }
 
     // delete notification here!
-    user.notifications.pull(notificationId);
+    await user.notifications.pull(notificationId);
     await user.save();
 
     await Notification.findByIdAndDelete(notificationId);
@@ -179,6 +177,6 @@ const deleteNotification = asyncHandler(async (req, res) => {
 module.exports = {
   createNotification,
   updateNotification,
-  getNotification,
+  getNotifications,
   deleteNotification
 };

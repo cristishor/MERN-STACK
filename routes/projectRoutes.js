@@ -48,6 +48,14 @@ router.route('/:projectId/:userId/note/:noteId')
   .put(authMiddleware, projectAccess, taskController.updateNote)
   .delete(authMiddleware, projectAccess, taskController.deleteNote)
 
+// task routes
+router.route('/:projectId/:userId/task')
+  .post(authMiddleware, projectAccess, taskController.createTask)
+  .get(authMiddleware, projectAccess, taskController.getTasks)
+router.route('/:projectId/:userId/task/:taskId')
+  .put(authMiddleware, projectAccess, taskController.updateTask)
+  .delete(authMiddleware, projectAccess, taskController.deleteTask)
+
 
 
 
