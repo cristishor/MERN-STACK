@@ -144,41 +144,22 @@ const getUser = asyncHandler(async (req, res) => {
   // You can access the authenticated user's information from req.user, as the authMiddleware sets it
   const authenticatedUser = await User.findById(userId);
 
-  
-  const projects = await Project.aggregate([
-    {
-      $match: {
-        _id: { $in: authenticatedUser.projectsInvolved },
-      },
-    },
-    {
-      $lookup: {
-        from: 'tasks', // Replace with the actual collection name of tasks
-        localField: 'tasks',
-        foreignField: '_id',
-        as: 'tasksData',
-      },
-    },
-    {
-      $addFields: {
-        tasksAssigned: {
-          $size: {
-            $filter: {
-              input: '$tasksData',
-              cond: { $eq: ['$$this.assignee', userId] },
-            },
-          },
-        },
-      },
-    },
-    {
-      $project: {
-        _id: 1,
-        title: 1,
-        tasksAssigned: 1,
-      },
-    },
-  ]);
+  // Retrieve the projects titles with number of tasks assigned in each proj
+  const userProjects = await Project.find({ _id: { $in: authenticatedUser.projectsInvolved } }, 'title tasks')
+  .populate({
+    path: 'tasks',
+    match: { assignee: userId },
+    select: 'assignee',
+  })
+  .lean(); // Convert documents to plain JavaScript objects
+  const projects = userProjects.map(project => {
+  const tasksAssigned = project.tasks ? project.tasks.length : 0;
+  return {
+    _id: project._id,
+    title: project.title,
+    tasksAssigned,
+    };
+  });
 
   const tasks = await Task.find({ assignee: userId })
     .populate('title deadline description')
@@ -189,7 +170,6 @@ const getUser = asyncHandler(async (req, res) => {
   const responseData = {
     message: `Welcome to the home page, ${authenticatedUser.firstName}!`,
     userId: userId, // delete when finishing frontend
-    firstName: authenticatedUser.firstName,
     profilePicture: authenticatedUser.profilePicture,
     projectsInvolved: projects,
     tasks: tasks
@@ -336,10 +316,8 @@ const deleteUser = asyncHandler(async (req, res) => {
     await Project.findByIdAndDelete(projId);
   }
 
-  const notificationsToDelete = await Notification.find({ userId });
-  for (const notification of notificationsToDelete) {
-    await notification.remove();
-  }
+  const notificationsToDelete = user.notifications;
+  await Notification.deleteMany({ _id: { $in: notificationsToDelete } });
 
   // Finally, delete the user
   await User.findByIdAndDelete(userId);

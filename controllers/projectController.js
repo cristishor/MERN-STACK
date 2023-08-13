@@ -83,32 +83,110 @@ const createProject = asyncHandler(async (req, res) => {
   });
 
 // GET PROJECT INFORMATION
-const getProject = asyncHandler (async (req, res) => {
-    const userRole = req.userRole
-    const projId = req.projId
+const getProject = asyncHandler(async (req, res) => {
+  const projId = req.projId;
 
-    let project = await Project.findById(projId).exec();
+  const project = await Project.findById(projId).select('title').exec();
 
-    if (userRole === 'manager' || userRole === 'owner') {
-      res.status(200).json({ project });
-    } else if (userRole === 'regular') {
-      // Create a new object with only the allowed fields for regular users
-      project = {
-        _id: project._id,
-        title: project.title,
-        description: project.description,
-        owner: project.owner,
-        projectManagers: project.projectManagers,
-        members: project.members,
-        projectTasks: project.tasks,
-        projectNotes: project.notes,
-        authorlessNotes: project.authorlessNotes,
-        status: project.status,
-        endDate: project.endDate
-      };
-      
-      res.status(200).json({ project });
-    }
+  if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+  }
+
+  res.status(200).json({ project: project });
+});
+
+// GET PROJECT PLUS
+const getProjectPlus = asyncHandler(async (req, res) => {
+  const projId = req.projId;
+
+  const project = await Project.findById(projId)
+      .populate('members', 'firstName lastName profilePicture')
+      .exec();
+
+  if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+  }
+
+  const projectWithDetails = {
+      _id: project._id,
+      title: project.title,
+      description: project.description,
+      status: project.status,
+      endDate: project.endDate,
+      members: project.members.map(member => ({
+          id: member._id,
+          firstName: member.firstName,
+          lastName: member.lastName,
+          profilePicture: member.profilePicture
+      }))
+  };
+
+  res.status(200).json({ project: projectWithDetails });
+});
+
+// GET PROJECT USER INFO
+const getUserProjectData = asyncHandler(async (req, res) => {
+  const projId = req.projId;
+  const targetUserId = req.body.targetUserId;
+
+  if (!targetUserId) {
+      return res.status(400).json({ message: 'Target user ID cannot be empty' });
+  }
+
+  // Check if the targetUserId belongs to a member of the project
+  const project = await Project.findById(projId)
+      .populate('members', '_id')
+      .exec();
+
+  if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+  }
+
+  const targetUserIsMember = project.members.some(member => member._id.equals(targetUserId));
+
+  if (!targetUserIsMember) {
+      return res.status(403).json({ message: 'Target user is not a member of the project' });
+  }
+
+  // Determine the role of the target user
+  let targetUserRole = 'member';
+
+  if (project.owner.equals(targetUserId)) {
+      targetUserRole = 'owner';
+  } else if (project.projectManagers.some(manager => manager.equals(targetUserId))) {
+      targetUserRole = 'manager';
+  }
+
+  // Retrieve userProject data for all members except the target user
+  const userProjectData = await User.findOne({
+      _id: { $in: project.members },
+      _id: { $ne: targetUserId }
+  }).select('firstName lastName phone email profilePicture');
+
+  res.status(200).json({ userProjectData, targetUserRole });
+});
+
+// GET PROJECT MANAGER DATA
+const getProjectManagerData = asyncHandler(async (req, res) => {
+  const userRole = req.userRole;
+  const projId = req.projId;
+
+  if (userRole !== 'manager' && userRole !== 'owner') {
+      return res.status(403).json({ message: 'Access denied.' });
+  }
+
+  const project = await Project.findById(projId)
+      .select('budget expenses activityLog tasks')
+      .populate({
+          path: 'tasks',
+          select: 'title deadline',
+          match: { deadline: { $ne: null } }, // Only tasks with deadlines
+          options: { sort: { deadline: 1 } }, // Sort by deadline in ascending order
+      })
+      .exec();
+
+  res.status(200).json({ project });
+
 });
 
 // UPDATE OWNER
@@ -613,8 +691,70 @@ const deleteExpense = asyncHandler(async (req, res) => {
 
 // DELETE PROJECT
 const deleteProject = asyncHandler(async (req, res) => {
+  const userRole = req.userRole;
+  const userId = req.userId;
+  const projId = req.projId;
+  const { password } = req.body;
 
-})
+  if (userRole !== 'owner') {
+      return res.status(403).json({ message: 'Only the owner can delete the project.' });
+  }
+
+  const project = await Project.findById(projId).select('tasks notes members title').exec();
+
+  if (!project) {
+      return res.status(404).json({ message: 'Project not found.' });
+  }
+
+  const owner = await User.findById(userId).select('+password').exec();
+
+  if (!owner) {
+      return res.status(404).json({ message: 'User not found.' });
+  }
+
+  if (!password) {
+    return res.status(404).json({ message: 'Please fill in the password for confirmation.'})
+  }
+
+  const passwordMatches = await bcrypt.compare(password, owner.password);
+
+  if (!passwordMatches) {
+      return res.status(401).json({ message: 'Incorrect password.' });
+  }
+
+  // Delete all notes from the project
+  await Note.deleteMany({ _id: { $in: project.notes } }).exec();
+
+  // Delete all tasks from the project
+  await Task.deleteMany({ _id: { $in: project.tasks } }).exec();
+
+  // Remove projId from members' projectsInvolved and send notifications
+  for (const memberId of project.members) {
+      const member = await User.findById(memberId).select('projectsInvolved').exec();
+
+      if (member) {
+          member.projectsInvolved = member.projectsInvolved.pull(projId)
+          await member.save();
+
+          // Send notification to the assignee
+          const title = 'Project closed!';
+          const body = `The project - ${project.title} - has been closed. Thank you for your participation!`;
+
+          // Pass the notification data to the createNotification controller
+          req.body = { targetUserId: memberId, title, body };
+      }
+  }
+  await owner.save();
+
+  // Remove projId from owner's projectsOwned
+  owner.projectsOwned.pull(projId);
+  await owner.save();
+
+  // Delete the project
+  await Project.findByIdAndDelete(projId)
+
+  res.status(200).json({ message: 'Project deleted successfully.' });
+});
 
   module.exports = { 
     createProject,
@@ -628,5 +768,8 @@ const deleteProject = asyncHandler(async (req, res) => {
     createExpense,
     updateExpense,
     deleteExpense,
-    deleteProject
+    deleteProject,
+    getProjectPlus,
+    getUserProjectData,
+    getProjectManagerData
   };

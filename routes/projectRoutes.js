@@ -18,6 +18,13 @@ router.route('/:projectId/:userId')
   .get(authMiddleware, projectAccess, projectController.getProject)
   .put(authMiddleware, projectAccess, projectController.updateProject)
   .delete(authMiddleware, projectAccess, projectController.deleteProject)
+router.route('/:projectId/:userId/projectInfo')
+  .get(authMiddleware, projectAccess, projectController.getProjectPlus)
+router.route('/:projectId/:userId/userInfo')
+  .get(authMiddleware, projectAccess, projectController.getUserProjectData)
+router.route('/:projectId/:userId/managerInfo')
+  .get(authMiddleware, projectAccess, projectController.getProjectManagerData)
+
 
 // update Owner
 router.route('/:projectId/:userId/owner')

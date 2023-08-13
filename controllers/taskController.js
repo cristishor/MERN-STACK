@@ -320,6 +320,9 @@ const updateTask = asyncHandler(async (req, res) => {
       return res.status(400).json({ message: 'Status cannot be changed for dependend tasks.' });
     }
     targetTask.status = status;
+    if (status === 'completed') {
+      targetTask.deadline = null
+    }
   }
   if (assignee) {
     targetTask.assignee = assignee;
