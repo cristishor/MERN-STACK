@@ -13,12 +13,12 @@ const notificationController = require('../controllers/notificationController')
 router.route('/regexEmail').post(regexCheckEmail)
 router.route('/regexPassword').post(regexCheckPassword)
 
-router.route('/register(.html)?')
+router.route('/register')
   .post(usersController.createNewUser)
-router.route('/login(.html)?')
+router.route('/login')
   .post(usersController.logInUser)
 
-router.delete('/:userId/logout(.html)?', authMiddleware)  //the authMiddleware handle the logout
+router.delete('/:userId/logout', authMiddleware)  //the authMiddleware handle the logout
  
 router.route('/:userId')
   .get(authMiddleware, usersController.getUser)

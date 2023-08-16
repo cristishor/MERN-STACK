@@ -40,23 +40,23 @@ app.use((req, res, next) => {
 app.use(cookieParser())
 // built-in middleware for serving static files like HTML, CSS, images and client-side JavaScript files
 // <=> app.use(express.static('public')); the one in use one is more explicit, the other works because it's relative to where your server file is
-app.use('/', express.static(path.join(__dirname, 'public'))) 
+// app.use('/', express.static(path.join(__dirname, 'client'))) -> MOVED TO FRONTEND
 
 // built-in middlware for root handling 
-app.use('/', require('./routes/root'))
-app.use('/users', require('./routes/userRoutes'))
-app.use('/projects', require('./routes/projectRoutes'))
+//BACK END
+app.use('/api', require('./routes/root'))
+app.use('/api/users', require('./routes/userRoutes'))
+app.use('/api/projects', require('./routes/projectRoutes'))
+app.all('/api/*', (req, res) => {
+  res.status(404).json({ message: 'API route not found' });
+});
 
-app.all('*', (req, res) => { //all pages 
-    res.status(404)
-    if(req.accepts('html')) {
-        res.sendFile(path.join(__dirname, 'views', '404.html'))
-    } else if (req.accepts('json')) { //if the request is a json 
-        res.json({message: '404 Not Found'})
-    } else {
-        res.type('txt').send('404 Not Found')
-    }
-} )
+// FRONTEND
+app.use(express.static("client/build"));
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+});
+
 
 app.use(errorHandler)
 
