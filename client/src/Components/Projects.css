@@ -1,0 +1,31 @@
+/* Projects.css */
+
+.projects-component {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+  
+  .project-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .project-item {
+    background-color: white;
+    padding: 10px;
+    border: 1px solid #d3d3d3;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  
+  .create-project-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  

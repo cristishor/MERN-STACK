@@ -6,7 +6,7 @@ const Notification = require('../models/Notification')
 const asyncHandler = require('express-async-handler') //module used to help with not having too many try catch blocks as we use async methods with mongoose to save or delete data or even find data from mongodb
 const bcrypt = require('bcrypt') //module used to hash the password before we save it
 const { checkEmailFormat, checkPasswordFormat } = require('../utilities/regexCheck'); 
-const { createToken } = require('../utilities/jwt')
+const { createToken, verifyToken } = require('../utilities/jwt')
 
 
 // regex check email
@@ -94,6 +94,17 @@ const createNewUser = asyncHandler(async (req, res) => {
 const logInUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
+  const tokenAlready = req.cookies.jwt;
+
+  if (tokenAlready) {
+    // Decode the token to get user information
+    const decoded = verifyToken(tokenAlready);
+
+    if (decoded) {
+      return res.status(200).json({ success: true, userId: decoded.userId });
+    }
+  }
+
   // Check if email and password are provided
   if (!email || !password) {
     return res.status(400).json({ message: 'Please provide email and password.' });
@@ -132,7 +143,7 @@ const logInUser = asyncHandler(async (req, res) => {
   });
 
   // Return the token in the response
-  res.status(200).json({success: true, token });
+  res.status(200).json({success: true, token, userId: user._id });
 })
 
 // GET USER

@@ -483,7 +483,7 @@ const removeMember = asyncHandler(async (req, res) => {
     }
 
     const targetUser = await User.findOne({ email: targetEmail }).populate('_id firstName lastName').exec()
-    
+
     if (!targetUser) {
       return res.status(400).json({ message: 'Invalid target user.' });
     }

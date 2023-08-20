@@ -17,6 +17,8 @@ router.route('/register')
   .post(usersController.createNewUser)
 router.route('/login')
   .post(usersController.logInUser)
+router.route('/:userId/logout')
+  .post(authMiddleware)
 
 router.delete('/:userId/logout', authMiddleware)  //the authMiddleware handle the logout
  

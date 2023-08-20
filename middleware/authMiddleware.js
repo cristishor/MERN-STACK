@@ -8,7 +8,12 @@ const authMiddleware = async (req, res, next) => {
   const token = req.cookies.jwt;
   
   if (!token) {
-    return res.status(401).json({ message: 'Authorization denied, missing token' });      // ADD REDIRECTS res.redirect('/login');
+    const errorResponse = {
+      status: 401,
+      message: 'Authorization denied, missing token',
+      errorCode: 'NEEDS_LOGIN',
+    };
+    return res.status(401).json(errorResponse);    
   }
 
   try {
@@ -17,25 +22,33 @@ const authMiddleware = async (req, res, next) => {
     const decoded = verifyToken(token)
 
     if (!decoded) {
-      return res.status(401).json({ message: 'Invalid token' }); // ADD REDIRECTS .redirect('/login');
+      const errorResponse = {
+        status: 401,
+        message: 'Invalid token!',
+        errorCode: 'NEEDS_LOGIN',
+      };
+      return res.status(401).json(errorResponse);    
     }
 
     // Find the user in the database using the decoded user ID from the token
     const user = await User.findById(decoded.userId);
 
     if (!user) {
-      return res.status(401).json({ message: 'User not found' }); // ADD REDIRECTS .redirect('/register');
+      const errorResponse = {
+        status: 401,
+        message: 'User not found!',
+        errorCode: 'NEEDS_LOGIN',
+      };
+      return res.status(401).json(errorResponse);    
     }
 
     if (req.params.userId !== decoded.userId) {
-      res.status(403);
-      if (req.accepts('html')) {
-        res.sendFile(path.join(__dirname, '..', 'views', 'notYourWorkspace.html'));
-      } else if (req.accepts('json')) {
-        res.json({ message: '403: This is not your workspace :/' });
-      } else {
-        res.type('txt').send('403 Forbidden');
-      }
+      const errorResponse = {
+        status: 403,
+        message: "This is not your workspace :/",
+        errorCode: "FORBIDDEN_USER",
+      };
+      res.status(403).json(errorResponse);
     } else {
       // Check if the route is /users/logout -> delete the cookie = logout
       if (req.path === `/${decoded.userId}/logout`) { 
@@ -44,6 +57,7 @@ const authMiddleware = async (req, res, next) => {
       return res.status(200).json({ message: 'Log out succesful!' });
     }
       req.userId = decoded.userId // send it in the req.body so that i dont have to get it out each time, its already there.
+      req.isAuthenticated = true
       next();
     }
   } catch (error) { 
