@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./Register.css"; // Import your CSS stylesheet for additional styling
+import "../Styles/Register.css"; // Import your CSS stylesheet for additional styling
 import { Link } from "react-router-dom"
 
 const Register = () => {

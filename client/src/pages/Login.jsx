@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link, useNavigate } from 'react-router-dom';
-import './Login.css';
+import '../Styles/Login.css';
 
 const Login = () => {
   const [formData, setFormData] = useState({

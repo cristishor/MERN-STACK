@@ -1,5 +1,6 @@
 const checkEmailFormat = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    console.log(email)
     return emailRegex.test(email);
 };
   

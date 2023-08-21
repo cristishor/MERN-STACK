@@ -3,6 +3,7 @@ const Project = require('../models/Project')
 const Notification = require('../models/Notification');
 const asyncHandler = require('express-async-handler')
 const { addActivityLogEntry } = require('../utilities/activityLog')
+const { formatDistanceToNow } = require("date-fns");
 
 const sortNotifications = async (user) => {
 
@@ -31,12 +32,25 @@ const getNotifications = asyncHandler(async (req, res) => {
   }
 
   const notifications = user.notifications;
+
   if(!notifications)
   {
-    res.status(404).json({ message: 'No notifications found!'})
+    res.status(200).json({ notifications:[] })
   } 
 
-  res.status(200).json({ notifications });
+  const notificationsWithTimeAgo = notifications.map((notification) => {
+    const timeAgo = formatDistanceToNow(notification.createdAt, {
+      addSuffix: true,
+    });
+
+    return {
+      ...notification.toObject(),
+      timeAgo,
+    };
+  });
+
+
+  res.status(200).json({ notifications: notificationsWithTimeAgo });
 });
 
 module.exports = { getNotifications };

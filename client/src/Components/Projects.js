@@ -1,7 +1,16 @@
 import React from "react";
-import "./Projects.css"
+import { useNavigate } from "react-router-dom";
 
-const Projects = ({ projects }) => {
+import "../Styles/Projects.css"
+
+
+const Projects = ({ projects, userId }) => {
+  const navigate = useNavigate();
+
+  const handleCreateProject = () => {
+    navigate(`/new-project/${userId}`); // Replace :userId with the actual user ID
+  };
+
   return (
     <div className="projects-component">
       <h2>Projects</h2>
@@ -13,7 +22,7 @@ const Projects = ({ projects }) => {
           </li>
         ))}
       </ul>
-      <button className="create-project-button">Create New Project</button>
+      <button className="create-project-button" onClick={handleCreateProject}>Create New Project</button>
     </div>
   );
 };

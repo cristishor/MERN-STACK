@@ -5,10 +5,10 @@ import Register from "./pages/Register";
 import Welcome from "./pages/Welcome";
 import Login from "./pages/Login";
 import Home from './pages/Home'
+import NewProject from './pages/NewProject'
 
-import withAuthentication from "./authenticationHOC"
-
-const ProtectedHome = withAuthentication(Home);
+  import withAuthentication from "./authenticationHOC"
+  const ProtectedHome = withAuthentication(Home);
 
 function App() {
   return (
@@ -18,6 +18,7 @@ function App() {
         <Route path="/register" element={<Register></Register>} />
         <Route path="/login" element={<Login></Login>} />
         <Route path="/home/:userId" element={<Home/>} />
+        <Route path="/new-project/:userId" element={<NewProject/>} />
       </Routes>
     </BrowserRouter>
   );

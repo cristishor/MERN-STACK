@@ -8,7 +8,7 @@ import Projects from "../Components/Projects";
 import Tasks from "../Components/Tasks";
 import NotificationPanel from "../Components/NotificationPanel";
 
-import "./Home.css";
+import "../Styles/Home.css";
 
 
 const Home = () => {
@@ -18,7 +18,6 @@ const Home = () => {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState("");
   const [isPanelOpen, setIsPanelOpen] = useState(false); // State to control panel visibility
-  const [isDataFetched, setIsDataFetched] = useState(false);
   const [fetchedData, setFetchedData] = useState([]);
 
   useEffect(() => {
@@ -46,7 +45,6 @@ const Home = () => {
   const fetchNotifications = async () => {
     try {
       const response = await axios.get(`/api/users/${userId}/notifications`);
-      console.log('mata',response.data)
 
       return response.data; // Return the fetched notifications
     } catch (error) {
@@ -67,11 +65,8 @@ const Home = () => {
   const handleNotificationToggle = async () => {
     setIsPanelOpen(!isPanelOpen);
 
-    if (!isDataFetched) {
-      const notifications = await fetchNotifications();
-      setFetchedData(notifications);
-      setIsDataFetched(true);
-    }
+    const notifications = await fetchNotifications();
+    setFetchedData(notifications);
   };
 
   const markNotificationAsSeen = async (notifId) => {
@@ -82,6 +77,28 @@ const Home = () => {
       setFetchedData(updatedNotifications);
     } catch (error) {
       console.error("Error marking notification as seen:", error);
+    }
+  };
+
+  const handleAcceptProposal = async (notificationId) => {
+    try {
+      await axios.put(`/api/users/${userId}/${notificationId}`, { response: true });
+      // Fetch the notifications again to update the data
+      const updatedNotifications = await fetchNotifications();
+      setFetchedData(updatedNotifications);
+    } catch (error) {
+      console.error("Error accepting proposal:", error);
+    }
+  };
+  
+  const handleDeclineProposal = async (notificationId) => {
+    try {
+      await axios.put(`/api/users/${userId}/${notificationId}`, { response: false });
+      // Fetch the notifications again to update the data
+      const updatedNotifications = await fetchNotifications();
+      setFetchedData(updatedNotifications);
+    } catch (error) {
+      console.error("Error declining proposal:", error);
     }
   };
 
@@ -98,11 +115,19 @@ const Home = () => {
       <Navbar userId={userId} onNotificationToggle={handleNotificationToggle} onLogout={handleLogout} />
       <div className="home-container">
         <div className="main-content">
-          <Projects projects={userData?.projectsInvolved} />
+          <Projects userId={userId} projects={userData?.projectsInvolved} />
           <Tasks tasks={userData?.tasks} />
         </div>
       </div>
-      { isPanelOpen && <NotificationPanel visible={isPanelOpen} onClose={handleNotificationToggle} notifications={fetchedData.notifications} markAsSeen={markNotificationAsSeen} /> }
+      { isPanelOpen && <NotificationPanel 
+      visible={isPanelOpen} 
+      onClose={handleNotificationToggle} 
+      notifications={fetchedData.notifications} 
+      markAsSeen={markNotificationAsSeen}
+      acceptProposal={handleAcceptProposal}
+      declineProposal={handleDeclineProposal} 
+      /> 
+      }
     </div>
   );
 };

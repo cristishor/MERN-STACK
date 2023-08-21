@@ -37,17 +37,26 @@
     padding: 5px 10px;
     background-color: #007bff;
     border: none;
-    color: white;
+    color: rgb(155, 160, 152);
     cursor: pointer;
     border-radius: 4px;
   }
   
   .seen-button {
     padding: 5px 10px;
-    background-color: #ccc;
+    background-color: #66c4ff;
     border: none;
     color: white;
     cursor: pointer;
     border-radius: 4px;
   }
-  
+
+  .notification-time {
+    font-size: 0.8rem; /* Adjust font size */
+    color: #525252; /* Text color for timeAgo */
+  }
+
+  .notification-seen-text {
+    color: #737373;
+    font-style: italic;
+  }

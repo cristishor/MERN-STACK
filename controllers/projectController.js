@@ -26,7 +26,7 @@ const createProject = asyncHandler(async (req, res) => {
     if (members) {
       for (const member of members) {
           //first check if the email is a valid email
-          if (!checkEmailFormat(member.email)) {
+          if (!checkEmailFormat(member)) {
               return res.status(400).json({ message: 'Invalid member email format.' });
           }      
       }
@@ -56,7 +56,7 @@ const createProject = asyncHandler(async (req, res) => {
       // Send notifications to existing users
       if (members) {
         for (const member of members) {
-          const existingUser = await User.findOne({ email: member.email }).exec();
+          const existingUser = await User.findOne({ email: member }).exec();
 
           if (existingUser) {
             // SEND AN INVITATION w/ IN-APP NOTIFICATION -> registered users only!
@@ -79,7 +79,7 @@ const createProject = asyncHandler(async (req, res) => {
           }
         } 
       }
-      return res.status(201).json({ message: 'Project created successfully', project });
+      return res.status(201).json({  success: true, message: 'Project created successfully', projectId:project._id });
   });
 
 // GET PROJECT INFORMATION

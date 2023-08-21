@@ -1,17 +1,17 @@
 import React from "react";
-import "./Notification.css"; // Add your Notification styles
+import "../Styles/Notification.css"; // Add your Notification styles
 
-const Notification = ({ notification }) => {
+const Notification = ({ notification, markAsSeen, acceptProposal, declineProposal }) => {
+  const handleToggleSeen = () => {
+    markAsSeen(notification._id);
+  };
+
   const handleAccept = () => {
-    // Implement the accept functionality
+    acceptProposal(notification._id);
   };
 
   const handleDecline = () => {
-    // Implement the decline functionality
-  };
-
-  const handleToggleSeen = () => {
-    // Implement the toggle seen functionality
+    declineProposal(notification._id);
   };
 
   return (
@@ -19,6 +19,7 @@ const Notification = ({ notification }) => {
       <div className="notification-content">
         <h3 className="notification-title">{notification.title}</h3>
         <p className="notification-body">{notification.body}</p>
+        <p className="notification-time">{notification.timeAgo}</p>
         {notification.proposal && (
           <div className="proposal-buttons">
             <button className="accept-button" onClick={handleAccept}>
@@ -30,9 +31,13 @@ const Notification = ({ notification }) => {
           </div>
         )}
       </div>
-      <button className="seen-button" onClick={handleToggleSeen}>
-        {notification.seen ? "Seen" : "Unseen"}
-      </button>
+      {notification.seen ? (
+        <div className="notification-seen-text">Seen</div>
+        ) : (
+        <button className="seen-button" onClick={handleToggleSeen}>
+        Mark as Seen
+        </button>
+       )}  
     </div>
   );
 };
