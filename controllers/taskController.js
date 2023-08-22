@@ -317,7 +317,10 @@ const updateTask = asyncHandler(async (req, res) => {
   }
   if (status) {
     if (targetTask.dependent) {
-      return res.status(400).json({ message: 'Status cannot be changed for dependend tasks.' });
+      const dependingTask = await Task.findById(targetTask.dependent).select('status')
+      if (dependingTask.status !== 'completed') {
+        return res.status(400).json({ message: 'Status cannot be changed for dependend tasks.' });
+      }
     }
     targetTask.status = status;
     if (status === 'completed') {

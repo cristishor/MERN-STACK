@@ -1,40 +1,40 @@
 /* Navbar.css */
 
 .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #007bff;
-    color: white;
-    padding: 10px 20px;
-    z-index: 100;
-  }
-  
-  .navbar-logo {
-    text-decoration: none; /* Remove default link underline and styling */
-    color: #f0e2e2; /* Change the color of the title */
-    font-weight: bold; /* Make the title bold */
-    font-size: 1.5rem; /* Adjust the font size */
-  }
-  
-  .navbar-buttons {
-    display: flex;
-    gap: 10px;
-  }
-  
-  .navbar-button {
-    background-color: transparent;
-    border: none;
-    color: white;
-    cursor: pointer;
-  }
-  
-  /* Apply styles to prevent button styling for the title */
-  .navbar-logo:focus,
-  .navbar-logo:hover,
-  .navbar-button:focus,
-  .navbar-button:hover {
-    text-decoration: none;
-    outline: none;
-  }
-  
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #333;
+  padding: 10px 20px;
+  color: white;
+}
+
+.navbar-logo {
+  text-decoration: none;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.navbar-buttons {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-button {
+  margin: 0 10px;
+  padding: 5px 10px;
+  background-color: transparent;
+  border: 1px solid white;
+  color: white;
+  cursor: pointer;
+}
+
+/* Apply styles to prevent button styling for the title and buttons */
+.navbar-logo:focus,
+.navbar-logo:hover,
+.navbar-button:focus,
+.navbar-button:hover {
+  text-decoration: none;
+  outline: none;
+}

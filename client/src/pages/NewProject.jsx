@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../Styles/NewProject.css";
+import Navbar from "../Components/Navbar";
 
 const NewProject = () => {
   const { userId } = useParams();
@@ -58,56 +59,59 @@ const NewProject = () => {
   };
 
   return (
-    <div className="new-project-container">
-      <h2>Create New Project</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Title</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Description</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </div>
-        <div className="form-group">
-          <label>Members</label>
-          {members.map((member, index) => (
-            <div key={index} className="member-box">
-              <input
-                type="text"
-                value={member}
-                onChange={(e) => handleMemberChange(index, e.target.value)}
-              />
-              {index > 0 && (
-                <button
-                  type="button"
-                  className="remove-member-button"
-                  onClick={() => handleRemoveMember(index)}
-                >
-                  X
-                </button>
-              )}
-            </div>
-          ))}
-          <button
-            type="button"
-            className="add-member-button"
-            onClick={handleAddMember}
-          >
-            Add Member
-          </button>
-        </div>
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
-        <button type="submit">Create Project</button>
-      </form>
+    <div>
+      <Navbar userId={userId} />
+      <div className="new-project-container">
+        <h2>Create New Project</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Title</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Description</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label>Members</label>
+            {members.map((member, index) => (
+              <div key={index} className="member-box">
+                <input
+                  type="text"
+                  value={member}
+                  onChange={(e) => handleMemberChange(index, e.target.value)}
+                />
+                {index > 0 && (
+                  <button
+                    type="button"
+                    className="remove-member-button"
+                    onClick={() => handleRemoveMember(index)}
+                  >
+                    X
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              className="add-member-button"
+              onClick={handleAddMember}
+            >
+              Add Member
+            </button>
+          </div>
+          {errorMessage && <p className="error-message">{errorMessage}</p>}
+          <button type="submit">Create Project</button>
+        </form>
+      </div>
     </div>
   );
 };

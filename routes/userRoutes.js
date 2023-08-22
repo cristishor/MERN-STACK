@@ -8,7 +8,7 @@ const { regexCheckEmail, regexCheckPassword } = require('../controllers/usersCon
 const usersController = require('../controllers/usersController')
 const notificationController = require('../controllers/notificationController')
 
-// *** ALL ROUTES START AT /users *** 
+// *** ALL ROUTES START AT /api/users *** 
 
 router.route('/regexEmail').post(regexCheckEmail)
 router.route('/regexPassword').post(regexCheckPassword)

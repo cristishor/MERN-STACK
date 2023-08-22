@@ -3,13 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import Navbar from "../Components/Navbar";
-import Projects from "../Components/Projects";
-import Tasks from "../Components/Tasks";
 
 import "../Styles/Home.css";
 
 
-const Home = () => {
+const ProjectPage = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
@@ -62,4 +60,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default ProjectPage;

@@ -1,62 +1,65 @@
+/* Notification.css */
+
 .notification {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    padding: 10px;
-    background-color: #f5f5f5;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .notification.seen {
-    background-color: #eaeaea;
-  }
-  
-  .notification-content {
-    flex: 1;
-  }
-  
-  .notification-title {
-    margin: 0;
-    font-size: 1.2rem;
-  }
-  
-  .notification-body {
-    margin: 5px 0;
-  }
-  
-  .proposal-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-  }
-  
-  .accept-button,
-  .decline-button {
-    padding: 5px 10px;
-    background-color: #007bff;
-    border: none;
-    color: rgb(155, 160, 152);
-    cursor: pointer;
-    border-radius: 4px;
-  }
-  
-  .seen-button {
-    padding: 5px 10px;
-    background-color: #66c4ff;
-    border: none;
-    color: white;
-    cursor: pointer;
-    border-radius: 4px;
-  }
+  color: #525252;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #f5f5f5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-  .notification-time {
-    font-size: 0.8rem; /* Adjust font size */
-    color: #525252; /* Text color for timeAgo */
-  }
+.notification.seen {
+  background-color: #eaeaea;
+}
 
-  .notification-seen-text {
-    color: #737373;
-    font-style: italic;
-  }
+.notification-content {
+  flex: 1;
+}
+
+.notification-title {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.notification-body {
+  margin: 5px 0;
+}
+
+.proposal-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.accept-button,
+.decline-button {
+  padding: 5px 10px;
+  background-color: #007bff;
+  border: none;
+  color: rgb(155, 160, 152);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.seen-button {
+  padding: 5px 10px;
+  background-color: #66c4ff;
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.notification-time {
+  font-size: 0.8rem;
+  color: #525252;
+}
+
+.notification-seen-text {
+  color: #737373;
+  font-style: italic;
+}

@@ -86,13 +86,55 @@ const createProject = asyncHandler(async (req, res) => {
 const getProject = asyncHandler(async (req, res) => {
   const projId = req.projId;
 
-  const project = await Project.findById(projId).select('title').exec();
+  const currentTasksObject = await Project.findById(projId)
+  .select('tasks -_id')
+  .populate({
+    path: 'tasks',
+    match: { status: { $in: ['urgent', 'in_progress'] } },
+    options: { sort: { status: -1, deadline: 1, createdAt: -1 } }
+  })
 
-  if (!project) {
+  if (!currentTasksObject) {
       return res.status(404).json({ message: 'Project not found' });
   }
 
-  res.status(200).json({ project: project });
+  const currentTasks = currentTasksObject.tasks;
+  console.log(currentTasks)
+
+  // LOGIC FOR GETTING THE CHAIN OF PAST (completed) TASKS THAT HAVE A THE CHAIN STILL ACTIVE
+  const getDependentChain = (task, tasksMap) => {
+    console.log("Getting dependent chain for task:", task.title);
+    
+    if (!task.dependent) {
+      //console.log("No dependent found.");
+      return [];
+    }
+    const dependentTask = tasksMap[task.dependent];
+    //console.log("Dependent task: ",task.dependent );
+    if (!dependentTask) {
+      //console.log("Dependent task not found.");
+      return [];
+    }
+    //console.log("Adding dependent task:", dependentTask.title);
+
+    const dependentChain = [dependentTask, ...getDependentChain(dependentTask, tasksMap)];
+    return dependentChain;
+  };
+  
+  const tasksMap = currentTasks.reduce((map, task) => {
+    map[task._id] = task;
+    return map;
+  }, {});
+  
+  const tasksWithDependencies = currentTasks.map(task => ({
+    task,
+    dependentChain: getDependentChain(task, tasksMap),
+  }));
+  
+
+
+
+  res.status(200).json({  tasksWithDependencies });
 });
 
 // GET PROJECT PLUS
@@ -159,8 +201,7 @@ const getUserProjectData = asyncHandler(async (req, res) => {
 
   // Retrieve userProject data for all members except the target user
   const userProjectData = await User.findOne({
-      _id: { $in: project.members },
-      _id: { $ne: targetUserId }
+      _id: { $in: targetUserId }
   }).select('firstName lastName phone email profilePicture');
 
   res.status(200).json({ userProjectData, targetUserRole });
