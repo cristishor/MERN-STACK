@@ -86,55 +86,108 @@ const createProject = asyncHandler(async (req, res) => {
 const getProject = asyncHandler(async (req, res) => {
   const projId = req.projId;
 
-  const currentTasksObject = await Project.findById(projId)
-  .select('tasks -_id')
-  .populate({
-    path: 'tasks',
-    match: { status: { $in: ['urgent', 'in_progress'] } },
-    options: { sort: { status: -1, deadline: 1, createdAt: -1 } }
-  })
+  const project = await Project.findById(projId)
+  .select('tasks title notes authorlessNotes -_id')
+  .populate('tasks notes authorlessNotes')
 
-  if (!currentTasksObject) {
+  if (!project) {
       return res.status(404).json({ message: 'Project not found' });
   }
 
-  const currentTasks = currentTasksObject.tasks;
-  console.log(currentTasks)
+  const tasks = project.tasks;
 
-  // LOGIC FOR GETTING THE CHAIN OF PAST (completed) TASKS THAT HAVE A THE CHAIN STILL ACTIVE
-  const getDependentChain = (task, tasksMap) => {
-    console.log("Getting dependent chain for task:", task.title);
-    
-    if (!task.dependent) {
-      //console.log("No dependent found.");
-      return [];
-    }
-    const dependentTask = tasksMap[task.dependent];
-    //console.log("Dependent task: ",task.dependent );
-    if (!dependentTask) {
-      //console.log("Dependent task not found.");
-      return [];
-    }
-    //console.log("Adding dependent task:", dependentTask.title);
+  const independentTasks = tasks.filter(task =>
+    !tasks.some(otherTask => otherTask.dependent && otherTask.dependent.equals(task._id))
+  );
+  
 
-    const dependentChain = [dependentTask, ...getDependentChain(dependentTask, tasksMap)];
-    return dependentChain;
+  const getChainWithCentralTask = (startTask, tasks) => {
+    const chain = [];
+    let currentTask = startTask;
+    let centralTaskIndex = 0
+    let centralTask
+  
+    // Traverse down the chain
+    while (currentTask) {
+      chain.push(currentTask);
+  
+      if (currentTask.status === 'urgent' || currentTask.status === 'in_progress') { 
+        centralTaskIndex = chain.length - 1;
+        centralTask = currentTask
+      }
+  
+      const dependentTaskId = currentTask.dependent;
+      if (!dependentTaskId) {
+        break; // No more dependent tasks, stop the loop
+      }
+      currentTask = tasks.find(task => task._id.equals(dependentTaskId))    
+    }
+    chain.reverse();
+
+    centralTaskIndex = chain.length - 1 - centralTaskIndex;
+
+    return { centralTaskIndex, chain, centralTask };
   };
   
-  const tasksMap = currentTasks.reduce((map, task) => {
-    map[task._id] = task;
-    return map;
-  }, {});
+  const chainsWithCentralTasks = independentTasks.map(independentTask => {
+    return getChainWithCentralTask(independentTask, tasks);
+  });
+
+
+  // Separate chains with and without centralTask
+  const completedChains = [];
+  const upcomingChains = [];
+  const sortedChains = [];
+
+  chainsWithCentralTasks.forEach(chainObj => {
+    if (!chainObj.centralTask) {
+      const hasCompletedTask = chainObj.chain.some(task => task.status === 'completed');
+      if (hasCompletedTask) {
+        completedChains.push(chainObj);
+      } else {
+        upcomingChains.push(chainObj);
+      }
+    } else {
+      sortedChains.push(chainObj);
+    }
+  });
   
-  const tasksWithDependencies = currentTasks.map(task => ({
-    task,
-    dependentChain: getDependentChain(task, tasksMap),
+  // Sort chains with centralTask
+  sortedChains.sort((chainA, chainB) => {
+  const taskA = chainA.centralTask;
+  const taskB = chainB.centralTask;
+
+  if (taskA.status !== taskB.status) {
+    return taskA.status === 'urgent' ? -1 : 1;
+  }
+
+  if (taskA.deadline && taskB.deadline) {
+    if (taskA.deadline !== taskB.deadline) {
+      return taskA.deadline - taskB.deadline;
+    }
+  } else if (taskA.deadline) {
+    return -1; // taskA has a deadline, taskB doesn't, taskA comes first
+  } else if (taskB.deadline) {
+    return 1; // taskB has a deadline, taskA doesn't, taskB comes first
+  }
+  return taskB.createdAt - taskA.createdAt;
+  });
+
+  const notes = project.notes
+  const authorlessNotes = project.authorlessNotes
+
+  const notesWithAuthorData = await Promise.all(notes.map(async note => {
+    const author = await User.findById(note.createdBy).select('firstName lastName').exec();
+    return {
+      content: note.content,
+      updatedAt: note.updatedAt,
+      firstName: author.firstName,
+      lastName: author.lastName
+    };
   }));
-  
 
+  res.status(200).json({ title:project.title, notesWithAuthorData, authorlessNotes, sortedChains, upcomingChains, completedChains });
 
-
-  res.status(200).json({  tasksWithDependencies });
 });
 
 // GET PROJECT PLUS

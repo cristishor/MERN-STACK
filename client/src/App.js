@@ -6,9 +6,7 @@ import Welcome from "./pages/Welcome";
 import Login from "./pages/Login";
 import Home from './pages/Home'
 import NewProject from './pages/NewProject'
-
-  import withAuthentication from "./authenticationHOC"
-  const ProtectedHome = withAuthentication(Home);
+import ProjectPage from "./pages/ProjectPage";
 
 function App() {
   return (
@@ -19,6 +17,7 @@ function App() {
         <Route path="/login" element={<Login></Login>} />
         <Route path="/home/:userId" element={<Home/>} />
         <Route path="/new-project/:userId" element={<NewProject/>} />
+        <Route path="/p/:projId/:userId" element={<ProjectPage/>} />
       </Routes>
     </BrowserRouter>
   );

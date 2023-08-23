@@ -43,7 +43,7 @@ const NewProject = () => {
       });
 
       if (response.data.success) {
-        navigate(`/p-${response.data.projectId}/${userId}`);
+        navigate(`/p/${response.data.projectId}/${userId}`);
       } else {
         console.log('mortii tei?', response.data.message, response.data.success)
         setErrorMessage(response.data.message);

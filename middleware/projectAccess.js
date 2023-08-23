@@ -36,7 +36,12 @@ const projectAccess = asyncHandler(async (req, res, next) => {
         next();
 
       } else {
-        return res.status(403).json({ message: 'Unauthorized access to project' });
+        const errorResponse = {
+          status: 403,
+          message: "This is not your workspace :/",
+          errorCode: "FORBIDDEN_USER_PROJECT",
+        };
+        return res.status(403).json(errorResponse);
       }
 
   });

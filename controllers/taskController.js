@@ -265,7 +265,7 @@ const updateTask = asyncHandler(async (req, res) => {
   } = req.body;
 
   // Fetch the project and target task
-  const project = await Project.findById(projId).exec();
+  const project = await Project.findById(projId).select('title tasks members').exec();
   const targetTask = await Task.findById(targetTaskId).exec();
 
   if (!project || !targetTask) {
@@ -316,16 +316,22 @@ const updateTask = asyncHandler(async (req, res) => {
     targetTask.description = description;
   }
   if (status) {
-    if (targetTask.dependent) {
-      const dependingTask = await Task.findById(targetTask.dependent).select('status')
-      if (dependingTask.status !== 'completed') {
-        return res.status(400).json({ message: 'Status cannot be changed for dependend tasks.' });
+    if ((targetTask.status === 'urgent' || targetTask.status === 'in_progress') && status === completed ) {
+        targetTask.status = status
+        targetTask.deadline = null
+
+        const dependentTask = await Task.find({ dependent: targetTaskId })
+        if (dependentTask) {
+        dependentTask.status = 'in_progress'
+        await dependentTask.save();
+        }
+      } else if ((status === 'urgent' && targetTask.status === 'in_progress') || (status === 'in_progress' && targetTask.status === 'urgent')) {
+        targetTask.status = status;
+      } else if (targetTask.status === 'todo' && (status === 'urgent' || status === 'in_progress') && !targetTask.dependent) {
+        targetTask.status = status;
+      } else {
+        return res.status(400).json({ message: 'Invalid status update' });
       }
-    }
-    targetTask.status = status;
-    if (status === 'completed') {
-      targetTask.deadline = null
-    }
   }
   if (assignee) {
     targetTask.assignee = assignee;
@@ -349,7 +355,7 @@ const updateTask = asyncHandler(async (req, res) => {
   await targetTask.save();
 
   // Send notification to the assignee with the updates
-  if (targetTask.assignee) {
+  if (assignee) {
     const titleNew = 'Your task has been updated!';
     const bodyNew = `${targetTask.title} has been updated. Latest status: ${targetTask.status}`;
 

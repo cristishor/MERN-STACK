@@ -4,22 +4,25 @@ import axios from "axios";
 
 import Navbar from "../Components/Navbar";
 
-import "../Styles/Home.css";
+import "../Styles/ProjectPage.css";
 
 
 const ProjectPage = () => {
-  const { userId } = useParams();
+  const { userId, projId } = useParams();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const [userData, setUserData] = useState(null);
+  const [projData, setProjData] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
     axios
-      .get(`/api/users/${userId}`)
+      .get(`/api/projects/${projId}/${userId}`)
       .then((response) => {
-        setUserData(response.data);
+        setProjData(response.data);
         setIsLoading(false);
+        console.log(projData)
+        console.log("mata\n")
+        console.log(response.data)
       })
       .catch((error) => {
         setIsLoading(false);
@@ -30,6 +33,8 @@ const ProjectPage = () => {
             navigate("/login");
           } else if (status === 403 && data.errorCode === "FORBIDDEN_USER") {
             setError("You are not authorized to access this workspace.");
+          } else if (status === 403 && data.errorCode === "FORBIDDEN_USER_PROJ") {
+            setError("You are not authorized to access this project.")
           }
         }
       });
@@ -48,14 +53,7 @@ const ProjectPage = () => {
   return (
     <div>
       <Navbar userId={userId} />
-      <div className="main-content">
-        <div className="projects-content">
-        <Projects userId={userId} projects={userData?.projectsInvolved} />
-        </div>
-        <div className="tasks-content">
-        <Tasks tasks={userData?.tasks} />
-        </div>
-      </div>
+      
     </div>
   );
 };
