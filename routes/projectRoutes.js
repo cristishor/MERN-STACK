@@ -37,6 +37,7 @@ router.route('/:projectId/:userId/manager')
 
 // update mmember list
 router.route('/:projectId/:userId/member')
+  .get(authMiddleware, projectAccess, projectController.getMembers)
   .post(authMiddleware, projectAccess, projectController.addMember)
   .delete(authMiddleware, projectAccess, projectController.removeMember)
 

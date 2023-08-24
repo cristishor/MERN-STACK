@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import Navbar from "../Components/Navbar";
+import AllProjectTasks from "../Components/AllProjectTasks"
 
 import "../Styles/ProjectPage.css";
 
@@ -20,9 +21,6 @@ const ProjectPage = () => {
       .then((response) => {
         setProjData(response.data);
         setIsLoading(false);
-        console.log(projData)
-        console.log("mata\n")
-        console.log(response.data)
       })
       .catch((error) => {
         setIsLoading(false);
@@ -39,8 +37,19 @@ const ProjectPage = () => {
         }
       });
 
-  }, [userId, navigate]);
+  }, [userId, projId, navigate]);
 
+  const handleDataRefresh = () => {
+    axios
+      .get(`/api/projects/${projId}/${userId}`)
+      .then((response) => {
+        setProjData(response.data);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        setError(error)
+      })
+  }
 
   if (isLoading) {
     return <div className="loading-message">Loading...</div>;
@@ -51,9 +60,16 @@ const ProjectPage = () => {
   }
 
   return (
-    <div>
+    <div className="page-container">
       <Navbar userId={userId} />
-      
+      <div className="content-container">
+        <div className="notes-section">
+          
+        </div>
+        <div className="tasks-section">
+          <AllProjectTasks projData={projData} onDataRefresh={handleDataRefresh}/>
+        </div>
+      </div>
     </div>
   );
 };

@@ -186,7 +186,7 @@ const getProject = asyncHandler(async (req, res) => {
     };
   }));
 
-  res.status(200).json({ title:project.title, notesWithAuthorData, authorlessNotes, sortedChains, upcomingChains, completedChains });
+  res.status(200).json({ title:project.title, notesWithAuthorData, authorlessNotes, sortedChains, upcomingChains, completedChains, userRole: req.userRole });
 
 });
 
@@ -258,6 +258,28 @@ const getUserProjectData = asyncHandler(async (req, res) => {
   }).select('firstName lastName phone email profilePicture');
 
   res.status(200).json({ userProjectData, targetUserRole });
+});
+
+// GET PROJECT MEMBERS
+const getMembers = asyncHandler(async (req, res) => {
+  const projId = req.projId;
+
+
+  // Check if the targetUserId belongs to a member of the project
+  const project = await Project.findById(projId)
+    .select('_members')
+    .populate({
+      path: 'members',
+      select: '_id firstName lastName profilePicture', 
+    })
+
+  if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+  }
+
+
+
+  res.status(200).json({ members: project.members });
 });
 
 // GET PROJECT MANAGER DATA
@@ -865,5 +887,6 @@ const deleteProject = asyncHandler(async (req, res) => {
     deleteProject,
     getProjectPlus,
     getUserProjectData,
-    getProjectManagerData
+    getProjectManagerData,
+    getMembers
   };

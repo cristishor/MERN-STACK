@@ -1,0 +1,24 @@
+.page-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Adjust to fill the viewport height */
+  }
+  
+  .content-container {
+    display: flex;
+    flex: 1;
+    max-width: 100%;
+    overflow: hidden; /* Prevent overflow from affecting layout */
+  }
+  
+  .notes-section {
+    width: 350px; /* Set a fixed width for the notes section */
+    padding: 20px;
+    background-color: #f9f9f9;
+  }
+  
+  .tasks-section {
+    flex: 1;
+    overflow: auto; /* Enable vertical scrolling if necessary */
+  }
+  
