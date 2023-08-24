@@ -34,14 +34,14 @@ const AddTaskPopup = ({ onClose, onTaskAdded, projId, userId, dependentTask }) =
         description: taskDescription,
         assignee,
         deadline,
-        dependent: dependentTask, 
+        dependent: dependentTask || '', 
       };
 
       const response = await axios.post(`/api/projects/${projId}/${userId}/task`, newTaskData);
 
+      onTaskAdded();
       setIsLoading(false); 
 
-      onTaskAdded();
       onClose();
     } catch (error) {
       setIsLoading(false); 
@@ -49,6 +49,8 @@ const AddTaskPopup = ({ onClose, onTaskAdded, projId, userId, dependentTask }) =
       if (error.response && error.response.data) {
         const { status, data } = error.response;
         setError(`Error: ${status}; Message: ${data}`);
+      } else {
+        setError('Something broke along the way')
       }
     }
 }

@@ -41,10 +41,12 @@ const Chain = ({ chain, centralTaskIndex, chainType, userRole, onDataRefresh}) =
 
     return (
       <div className='chain'  /* style={{transform: `translateX(${translateXValue})`}} */ >
-        {chain.chain.map((task, index) => (<Task key={index} task={task} />))}
+        {chain.chain.map((task, index) => (<Task key={index} task={task} projId={projId} userId={userId} userRole={userRole} onDataRefresh={onDataRefresh}/>))}
 
         {userRole === "manager" || userRole === "owner" ? (
-          <div className="add-task-card" onClick={handleOpenPopup}>+</div>
+          chainType !== "completed" ? (
+            <div className="add-task-card" onClick={handleOpenPopup}>+</div>
+          ) : null
         ) : null}
         {isPopupVisible && ( <AddTaskPopup onClose={handleClosePopup} onTaskAdded={handleTaskAdded} projId={projId} userId={userId} dependentTask={dependentTask}/>)}  
       </div>

@@ -38,3 +38,8 @@
   text-decoration: none;
   outline: none;
 }
+
+.notification-count {
+  background-color: rgb(255, 255, 62);
+  color: #333;
+}

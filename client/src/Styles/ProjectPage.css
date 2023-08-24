@@ -12,9 +12,12 @@
   }
   
   .notes-section {
-    width: 350px; /* Set a fixed width for the notes section */
+    width: 400px; /* Set a fixed width for the notes section */
+    height: 100% ;
     padding: 20px;
     background-color: #f9f9f9;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
   
   .tasks-section {
@@ -22,3 +25,25 @@
     overflow: auto; /* Enable vertical scrolling if necessary */
   }
   
+  .top-section {
+    display: flex; /* Use Flexbox */
+    align-items: center; /* Center items vertically */
+    padding: 10px 20px; /* Add padding for spacing */
+    gap: 40px;
+  }
+
+  .add-task-button {
+    background-color: #007bff; /* Blue color */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 14px;
+    width: 120px; /* Fixed width */
+    height: 40px; /* Fixed height */
+    cursor: pointer;
+  }
+  
+  .add-task-button:hover {
+    background-color: #0056b3; /* Darker blue color on hover */
+  }

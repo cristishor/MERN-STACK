@@ -52,7 +52,7 @@ const getNotes = asyncHandler(async (req, res) => {
     const project = await Project.findById(projId)
     .populate({
       path: 'notes',
-      select: 'createdBy content updatedAt', // Select the desired fields
+      select: 'createdBy content createdAt', // Select the desired fields
       populate: {
         path: 'createdBy',
         select: 'firstName lastName', // Select the user's name fields
@@ -191,11 +191,11 @@ const createTask = asyncHandler(async (req, res) => {
   // Create a new task
   const newTask = new Task({
       title,
-      description,
-      assignee,
+      description: description || undefined,
+      assignee: assignee || undefined,
       status: 'todo', // Default to 'todo' 
-      dependent,
-      deadline // Initialize deadline to null, to be updated if needed
+      dependent: dependent || undefined,
+      deadline: deadline || undefined
   });
 
   // Save the task
@@ -312,16 +312,15 @@ const updateTask = asyncHandler(async (req, res) => {
   if (title) {
     targetTask.title = title;
   }
-  if (description) {
-    targetTask.description = description;
-  }
+  targetTask.description = description;
   if (status) {
-    if ((targetTask.status === 'urgent' || targetTask.status === 'in_progress') && status === completed ) {
+    if ((targetTask.status === 'urgent' || targetTask.status === 'in_progress') && status === 'completed' ) {
         targetTask.status = status
         targetTask.deadline = null
 
-        const dependentTask = await Task.find({ dependent: targetTaskId })
+        const dependentTask = await Task.findOne({ dependent: targetTaskId })
         if (dependentTask) {
+        console.log("taskk: ", dependentTask)
         dependentTask.status = 'in_progress'
         await dependentTask.save();
         }
@@ -329,13 +328,18 @@ const updateTask = asyncHandler(async (req, res) => {
         targetTask.status = status;
       } else if (targetTask.status === 'todo' && (status === 'urgent' || status === 'in_progress') && !targetTask.dependent) {
         targetTask.status = status;
+      } else if (targetTask.status === status) {
+        targetTask.status = status
       } else {
         return res.status(400).json({ message: 'Invalid status update' });
       }
   }
-  if (assignee) {
+  if(assignee) {
     targetTask.assignee = assignee;
-
+  } else if (assignee === '') {
+    targetTask.assignee = undefined
+  }
+  if (assignee) {
     // Send notification to the assignee
     const title = 'You have been given a new task!';
     const body = `You have been assigned a new task on the ${project.title}: ${targetTask.title}`;
@@ -346,11 +350,11 @@ const updateTask = asyncHandler(async (req, res) => {
   }
   if (dependent) {
     targetTask.dependent = dependent;
+  } else {
+    targetTask.dependent = undefined
   }
-  if (deadline) {
-    // Add additional checks if necessary
-    targetTask.deadline = deadline;
-  }
+  targetTask.deadline = deadline;
+  
 
   await targetTask.save();
 

@@ -6,10 +6,27 @@ import NotificationPanel from "./NotificationPanel";
 
 import '../Styles/Navbar.css'; 
 
-const Navbar = ({ userId, onNotificationToggle, onLogout }) => {
+const Navbar = ({ userId }) => {
   const navigate = useNavigate();
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [fetchedData, setFetchedData] = useState([]); 
+  const [unseenNotifications, setUnseenNotifications] = useState(0);
+
+  useEffect(() => {
+    axios.get(`/api/users/${userId}/notifications`)
+      .then((response) => {
+        const fetchedData = response.data
+        setFetchedData(response)
+
+        const unseenCount = fetchedData.notifications.filter(notification => !notification.seen).length;
+        setUnseenNotifications(unseenCount);
+        console.log(unseenCount)
+      })
+      .catch((error) => { 
+        console.error("Error fetching notifications:", error);
+        return [];
+    })
+  }, [userId])
 
   const fetchNotifications = async () => {
     try {
@@ -81,7 +98,7 @@ const Navbar = ({ userId, onNotificationToggle, onLogout }) => {
       </div>
       <div className="navbar-buttons">
         <button className="navbar-button" onClick={handleNotificationToggle}>
-          Notifications
+          Notifications {unseenNotifications > 0 && <span className="notification-count">{unseenNotifications}</span>}
         </button>
         <button className="navbar-button">Edit Profile</button>
         <button className="navbar-button" onClick={handleLogout}>

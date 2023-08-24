@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import Chain from "./Chain"; // Import your Chain component
 
 import "../Styles/AllProjectTasks.css"
@@ -6,24 +6,34 @@ import "../Styles/AllProjectTasks.css"
 const AllProjectTasks = ({ projData, onDataRefresh }) => {
   const { sortedChains, upcomingChains, completedChains, userRole } = projData;
 
+  const [showChainsUpcoming, setShowChainsUpcoming] = useState(false);
+  const [showChainsCompleted, setShowChainsCompleted] = useState(false);
+
+  const toggleChainsUpcoming = () => {
+    setShowChainsUpcoming(!showChainsUpcoming);
+  };
+
+  const toggleChainsCompleted = () => {
+    setShowChainsCompleted(!showChainsCompleted);
+  };
+
   return (
     <div>
-      <h2>Project Title: {projData.title}</h2>
-      <h3>Current</h3>
-      <div className="chain-container">
+      <div className="current-chain-container">
+        <h2>Ongoing/current</h2>
         {sortedChains.map((chain, index) => (
           <Chain key={index} chain={chain} centralTaskIndex={chain.centralTaskIndex} chainType={'current'} userRole={userRole} onDataRefresh={onDataRefresh}/>
         ))}
       </div>
-      <h3>Upcoming</h3>
-      <div className="chain-container">
-        {upcomingChains.map((chain, index) => (
+      <div className="upcoming-chain-container">
+        <h2 onClick={toggleChainsUpcoming}>Upcoming</h2>
+        {showChainsUpcoming && upcomingChains.map((chain, index) => (
           <Chain key={index} chain={chain} chainType={'upcoming'} userRole={userRole} onDataRefresh={onDataRefresh}/>
         ))}
       </div>
-      <h3>Completed</h3>
-      <div className="chain-container">
-        {completedChains.map((chain, index) => (
+      <div className="completed-chain-container">
+        <h2 onClick={toggleChainsCompleted}>Completed</h2>
+        {showChainsCompleted && completedChains.map((chain, index) => (
           <Chain key={index} chain={chain} chainType={'completed'} userRole={userRole} onDataRefresh={onDataRefresh}/>
         ))}
       </div>

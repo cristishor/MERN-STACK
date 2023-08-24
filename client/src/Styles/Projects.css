@@ -29,3 +29,6 @@
     cursor: pointer;
   }
   
+  .project-link {
+    text-decoration: none; /* Remove underlines */
+  }
