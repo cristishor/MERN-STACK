@@ -21,7 +21,7 @@ router.route('/:projectId/:userId')
 router.route('/:projectId/:userId/projectInfo')
   .get(authMiddleware, projectAccess, projectController.getProjectPlus)
 router.route('/:projectId/:userId/userInfo')
-  .get(authMiddleware, projectAccess, projectController.getUserProjectData)
+  .post(authMiddleware, projectAccess, projectController.getUserProjectData)
 router.route('/:projectId/:userId/managerInfo')
   .get(authMiddleware, projectAccess, projectController.getProjectManagerData)
 
@@ -63,6 +63,8 @@ router.route('/:projectId/:userId/task')
 router.route('/:projectId/:userId/task/:taskId')
   .put(authMiddleware, projectAccess, taskController.updateTask)
   .delete(authMiddleware, projectAccess, taskController.deleteTask)
+router.route('/tasks/:taskId')
+  .get(authMiddleware, taskController.findProjectOfTask)
 
 
 

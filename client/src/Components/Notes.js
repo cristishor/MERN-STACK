@@ -3,26 +3,27 @@ import axios from 'axios';
 
 import "../Styles/Notes.css"
 
-const Notes = ({ projId, userId, onDataRefresh }) => {
+const Notes = ({ projId, userId, authorlessNotes }) => {
   const [notes, setNotes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
   const [addingNote, setAddingNote] = useState(false);
   const [newNoteContent, setNewNoteContent] = useState("");
+  const [editingNoteId, setEditingNoteId] = useState(null);
+
+  const fetchNotes = async () => {
+    try {
+      const response = await axios.get(`/api/projects/${projId}/${userId}/note`);
+      setNotes(response.data.notes);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      setError('Error fetching notes');
+    }
+  };
 
   useEffect(() => {
-    const fetchNotes = async () => {
-      try {
-        const response = await axios.get(`/api/projects/${projId}/${userId}/note`);
-        setNotes(response.data.notes);
-        setIsLoading(false);
-      } catch (error) {
-        setIsLoading(false);
-        setError('Error fetching notes');
-      }
-    };
-
     fetchNotes();
   }, [projId, userId]);
 
@@ -39,13 +40,22 @@ const Notes = ({ projId, userId, onDataRefresh }) => {
     setIsLoading(true);
     
     try {
+      if (editingNoteId) {
+        // Edit an existing note
+        await axios.put(`/api/projects/${projId}/${userId}/note/${editingNoteId}`, {
+          content: newNoteContent,
+        });
+      } else {
         const response = await axios.post(`/api/projects/${projId}/${userId}/note`, {
           content: newNoteContent, // Include the newNoteContent in the request body
+          
         });
-    
+      }
+
+        setEditingNoteId(null);
         setAddingNote(false);
         setNewNoteContent("");
-        onDataRefresh(); // refresh content
+        fetchNotes(); // refresh content
       } catch (error) {
         console.error("Error creating note:", error);
       } finally {
@@ -54,10 +64,25 @@ const Notes = ({ projId, userId, onDataRefresh }) => {
 }
 
 const handleEditNote = (note) => {
-
+  setEditingNoteId(note._id); // Set the ID of the note being edited
+  setNewNoteContent(note.content); // Set the content of the note in the textarea
+  setAddingNote(true); // Show the edit form
 }
-const handleDeleteNote = (noteId) => {
+const handleDeleteNote = async (noteId) => {
+  setIsLoading(true);
 
+  try {
+    await axios.delete(`/api/projects/${projId}/${userId}/note/${noteId}`);
+    const updatedNotes = notes.filter((note) => note._id !== noteId);
+    setNotes(updatedNotes);
+
+    setIsLoading(false)
+
+  } catch (error) {
+    setIsLoading(false)
+    console.error("Error deleting note:", error);
+    setError("Error deleting note");
+  }
 }
 
 
@@ -115,6 +140,14 @@ const handleDeleteNote = (noteId) => {
     )}
         </div>
       ))}
+
+      {authorlessNotes.map((authorlessNote, index) => (
+        <div key={`authorless-${index}`} className="note authorless-note">
+        <p>{authorlessNote.noteBody}</p>
+        <p className="authorless-note-info">Removed Creator: {authorlessNote.removedCreator}</p>
+        </div>
+      ))}
+      
     </div>
   );
 };

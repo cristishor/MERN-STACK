@@ -89,7 +89,7 @@ const Task = ({ task, userId, projId, userRole, onDataRefresh }) => {
         {task.assignee && <p>Assignee: {task.assignee}</p>}
 
         <p>Status: {task.status}</p>
-        <p className="lastUpdated">{task.updatedAt}</p>
+        <p className="lastUpdated">Last updated:{task.updatedAt}</p>
 
         {userRole === "manager" || userRole === "owner" ? (
           showButtons && (

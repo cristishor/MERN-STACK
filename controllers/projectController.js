@@ -145,7 +145,7 @@ const getProject = asyncHandler(async (req, res) => {
       if (hasCompletedTask) {
         completedChains.push(chainObj);
       } else {
-        upcomingChains.push(chainObj);
+        upcomingChains.unshift(chainObj);
       }
     } else {
       sortedChains.push(chainObj);
@@ -213,12 +213,13 @@ const getProjectPlus = asyncHandler(async (req, res) => {
           firstName: member.firstName,
           lastName: member.lastName,
           profilePicture: member.profilePicture
-      }))
+      })),
+      createdAt: project.createdAt
   };
 
-  res.status(200).json({ project: projectWithDetails });
+  res.status(200).json({ project: projectWithDetails, userRole: req.userRole });
 });
-
+// +
 // GET PROJECT USER INFO
 const getUserProjectData = asyncHandler(async (req, res) => {
   const projId = req.projId;
@@ -255,7 +256,7 @@ const getUserProjectData = asyncHandler(async (req, res) => {
   // Retrieve userProject data for all members except the target user
   const userProjectData = await User.findOne({
       _id: { $in: targetUserId }
-  }).select('firstName lastName phone email profilePicture');
+  }).select('firstName lastName email contactInformation');
 
   res.status(200).json({ userProjectData, targetUserRole });
 });
@@ -307,7 +308,7 @@ const getProjectManagerData = asyncHandler(async (req, res) => {
 
 // UPDATE OWNER
 const passOwnership = asyncHandler(async (req, res) => {
-    const { targetEmail, password } = req.body
+    const { targetUserId, password } = req.body
 
     const userId = req.userId
     const userRole = req.userRole
@@ -318,9 +319,8 @@ const passOwnership = asyncHandler(async (req, res) => {
     }
 
     // Check if the targetUserId exists and is a manager of the project
-    const targetUser = await User.findOne({ email: targetEmail }).exec()
+    const targetUser = await User.findById( targetUserId ).exec()
     const project = await Project.findById(projId).exec();
-    const targetUserId = targetUser._id
 
     if (!targetUser || !project.projectManagers.includes(targetUserId)) {
       return res.status(404).json({ message: 'Invalid target user ID or user is not a project manager of the project.' });
@@ -384,6 +384,7 @@ const updateProject = asyncHandler(async (req, res) => {
     }
 
     let descriptionLog = ''
+    let endDateChanged
 
     if (status) {
       if(status !== 'in_progress' && status !=='completed' && status !=='on_hold'){
@@ -406,10 +407,14 @@ const updateProject = asyncHandler(async (req, res) => {
     }
     if (endDate) {
       project.endDate = endDate;
-      descriptionLog += `New end date: ${endDate}\n`;
+      descriptionLog += `New closing date: ${endDate}\n`;
+    } else if (project.endDate && endDate === null) {
+      project.endDate = null
+      descriptionLog += `Project closing date removed`;
+      endDateChanged = true
     }
 
-    if (!title  && !description && !status && !budget && !endDate) {
+    if (!title  && !description && !status && !budget && !endDate && !endDateChanged) {
       return res.status(400).json({ message: 'No fields to update.' });
     }
 
@@ -426,7 +431,7 @@ const updateProject = asyncHandler(async (req, res) => {
 
 // POST NEW MANAGER
 const addManager = asyncHandler(async (req, res) => {
-    const { targetEmail } = req.body;
+    const { targetUserId } = req.body;
 
     const userRole = req.userRole
     const projId = req.projId
@@ -441,8 +446,7 @@ const addManager = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: 'Project not found.' });
     }
 
-    const targetUser = await User.findOne({ email: targetEmail }).exec()
-    const targetUserId = targetUser._id
+    const targetUser = await User.findById(targetUserId).exec()
 
     if (!targetUser || !project.members.includes(targetUserId)) {
       return res.status(400).json({ message: 'Invalid target user.' });
@@ -471,7 +475,7 @@ const addManager = asyncHandler(async (req, res) => {
 
 // DELETE REMOVE MANAGER
 const deleteManager = asyncHandler(async (req, res) => {
-    const { targetEmail } = req.body;
+    const { targetUserId } = req.body;
 
     const userRole = req.userRole
     const projId = req.projId
@@ -486,8 +490,7 @@ const deleteManager = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: 'Project not found.' });
     }
 
-    const targetUser = await User.findOne({ email: targetEmail }).exec()
-    const targetUserId = targetUser._id
+    const targetUser = await User.findById(targetUserId).exec()
 
     if (!targetUser || !project.projectManagers.includes(targetUserId)) {
       return res.status(400).json({ message: 'Invalid target user or not a project manager.' });
@@ -579,17 +582,20 @@ const addMember = asyncHandler(async (req, res) => {
 
 // DELETE REMOVE MEMBER
 const removeMember = asyncHandler(async (req, res) => {
-    const { targetEmail } = req.body;
+    const { targetUserId } = req.body;
     const projId = req.projId
     const userRole = req.userRole
+    console.log(targetUserId)
 
-    const caller = await User.findById(req.userId).select('firstName lastName email').exec();
+    const caller = await User.findById(req.userId).select('firstName lastName').exec();
+    console.log(caller._id)
 
-    if (userRole !== 'owner' && targetEmail !== caller.email) {
+
+    if (userRole !== 'owner' && targetUserId !== req.userId) {
       return res.status(403).json({ message: 'Unauthorized: Only owners can remove members' });
     }
 
-    if (userRole === 'owner' && targetEmail === caller.email) {
+    if (userRole === 'owner' && targetUserId === caller._id.toString()) {
       return res.status(403).json({ message: 'Unauthorized: you must pass down the ownership before leaving the project.' });
     }
 
@@ -598,17 +604,18 @@ const removeMember = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: 'Project not found' });
     }
 
-    const targetUser = await User.findOne({ email: targetEmail }).populate('_id firstName lastName').exec()
+    const targetUser = await User.findById(targetUserId).populate('firstName lastName').exec()
 
     if (!targetUser) {
       return res.status(400).json({ message: 'Invalid target user.' });
     }
 
-    const targetUserId = targetUser._id
-
     await Task.updateMany({ project: projId, assignee: targetUserId }, { $unset: { assignee: 1 } });
 
-    const authorlessNotes = await Note.find({ createdBy: targetUserId }).exec();
+    const authorlessNotes = await Note.find({
+      createdBy: targetUserId,
+      _id: { $in: project.notes }, // Assuming project.authorlessNotes contains IDs of associated notes
+    }).exec();
 
     // Send them notes to authorlessNotes
     const formattedAuthorlessNotes = authorlessNotes.map(note => ({
@@ -616,6 +623,11 @@ const removeMember = asyncHandler(async (req, res) => {
     noteBody: note.content,
     }));  
     project.authorlessNotes = project.authorlessNotes.concat(formattedAuthorlessNotes);
+
+    const deletedNotes = await Note.deleteMany({
+      createdBy: targetUserId,
+      _id: { $in: project.notes },
+    }).exec();
 
     // Remove the targetUserId from the project members array and managers array
     const indexToRemove = project.members.indexOf(targetUserId);
@@ -638,7 +650,7 @@ const removeMember = asyncHandler(async (req, res) => {
     await targetUser.save();
 
     // Send notification to the targeted user if not already present in the team
-    if ( targetEmail !== caller.email ) {
+    if ( targetUserId !== caller._id ) {
     const title = 'You have been kicked out of the team.';
     const body = `Unfortunatelly, ${caller.firstName} ${caller.lastName} has decided to remove you from ${project.title}`;
 
@@ -845,7 +857,8 @@ const deleteProject = asyncHandler(async (req, res) => {
   await Task.deleteMany({ _id: { $in: project.tasks } }).exec();
 
   // Remove projId from members' projectsInvolved and send notifications
-  for (const memberId of project.members) {
+  const updatedMembers = project.members.filter(memberId => memberId !== userId);
+  for (const memberId of updatedMembers) {
       const member = await User.findById(memberId).select('projectsInvolved').exec();
 
       if (member) {
@@ -858,6 +871,7 @@ const deleteProject = asyncHandler(async (req, res) => {
 
           // Pass the notification data to the createNotification controller
           req.body = { targetUserId: memberId, title, body };
+          createNotification(req)
       }
   }
   await owner.save();
@@ -871,6 +885,7 @@ const deleteProject = asyncHandler(async (req, res) => {
 
   res.status(200).json({ message: 'Project deleted successfully.' });
 });
+
 
   module.exports = { 
     createProject,

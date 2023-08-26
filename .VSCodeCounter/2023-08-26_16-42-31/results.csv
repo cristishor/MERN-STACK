@@ -1,0 +1,96 @@
+"filename", "language", "HTML", "JavaScript", "JavaScript JSX", "JSON", "CSS", "XML", "Markdown", "comment", "blank", "total"
+"c:\Users\crist\Desktop\MERN-STACK\client\README.md", "Markdown", 0, 0, 0, 0, 0, 0, 38, 0, 33, 71
+"c:\Users\crist\Desktop\MERN-STACK\client\package-lock.json", "JSON", 0, 0, 0, 17609, 0, 0, 0, 0, 1, 17610
+"c:\Users\crist\Desktop\MERN-STACK\client\package.json", "JSON", 0, 0, 0, 40, 0, 0, 0, 0, 1, 41
+"c:\Users\crist\Desktop\MERN-STACK\client\public\index.html", "HTML", 20, 0, 0, 0, 0, 0, 0, 23, 1, 44
+"c:\Users\crist\Desktop\MERN-STACK\client\public\manifest.json", "JSON", 0, 0, 0, 25, 0, 0, 0, 0, 1, 26
+"c:\Users\crist\Desktop\MERN-STACK\client\src\App.css", "CSS", 0, 0, 0, 0, 33, 0, 0, 0, 6, 39
+"c:\Users\crist\Desktop\MERN-STACK\client\src\App.js", "JavaScript", 0, 27, 0, 0, 0, 0, 0, 1, 6, 34
+"c:\Users\crist\Desktop\MERN-STACK\client\src\App.test.js", "JavaScript", 0, 7, 0, 0, 0, 0, 0, 0, 2, 9
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Components\AddTaskPopup.js", "JavaScript", 0, 90, 0, 0, 0, 0, 0, 0, 17, 107
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Components\AllProjectTasks.js", "JavaScript", 0, 37, 0, 0, 0, 0, 0, 0, 8, 45
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Components\Chain.js", "JavaScript", 0, 41, 0, 0, 0, 0, 0, 1, 16, 58
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Components\MemberPopup.js", "JavaScript", 0, 141, 0, 0, 0, 0, 0, 1, 24, 166
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Components\Navbar.js", "JavaScript", 0, 102, 0, 0, 0, 0, 0, 3, 18, 123
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Components\Notes.js", "JavaScript", 0, 129, 0, 0, 0, 0, 0, 1, 26, 156
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Components\Notification.js", "JavaScript", 0, 40, 0, 0, 0, 0, 0, 0, 6, 46
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Components\NotificationPanel.js", "JavaScript", 0, 25, 0, 0, 0, 0, 0, 0, 3, 28
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Components\Projects.js", "JavaScript", 0, 27, 0, 0, 0, 0, 0, 0, 8, 35
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Components\Task.js", "JavaScript", 0, 110, 0, 0, 0, 0, 0, 0, 18, 128
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Components\Tasks.js", "JavaScript", 0, 19, 0, 0, 0, 0, 0, 0, 3, 22
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Components\UpdateTaskForm.js", "JavaScript", 0, 98, 0, 0, 0, 0, 0, 0, 19, 117
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\AddTaskPopup.css", "CSS", 0, 0, 0, 0, 67, 0, 0, 7, 10, 84
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\AllProjectTasks.css", "CSS", 0, 0, 0, 0, 8, 0, 0, 0, 2, 10
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\Chain.css", "CSS", 0, 0, 0, 0, 35, 0, 0, 0, 3, 38
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\ForbiddenUserErrorPage.css", "CSS", 0, 0, 0, 0, 16, 0, 0, 0, 3, 19
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\ForbiddenUserProjectErrorPage.css", "CSS", 0, 0, 0, 0, 16, 0, 0, 0, 3, 19
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\Home.css", "CSS", 0, 0, 0, 0, 101, 0, 0, 6, 21, 128
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\Login.css", "CSS", 0, 0, 0, 0, 72, 0, 0, 0, 14, 86
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\MemberPopup.css", "CSS", 0, 0, 0, 0, 103, 0, 0, 0, 18, 121
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\Navbar.css", "CSS", 0, 0, 0, 0, 37, 0, 0, 2, 6, 45
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\NewProject.css", "CSS", 0, 0, 0, 0, 84, 0, 0, 0, 14, 98
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\NotFoundPage.css", "CSS", 0, 0, 0, 0, 17, 0, 0, 0, 3, 20
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\Notes.css", "CSS", 0, 0, 0, 0, 125, 0, 0, 0, 19, 144
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\Notification.css", "CSS", 0, 0, 0, 0, 54, 0, 0, 1, 11, 66
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\NotificationPanel.css", "CSS", 0, 0, 0, 0, 92, 0, 0, 1, 16, 109
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\ProjectDetails.css", "CSS", 0, 0, 0, 0, 129, 0, 0, 1, 21, 151
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\ProjectManagement.css", "CSS", 0, 0, 0, 0, 0, 0, 0, 0, 1, 1
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\ProjectPage.css", "CSS", 0, 0, 0, 0, 52, 0, 0, 0, 9, 61
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\Projects.css", "CSS", 0, 0, 0, 0, 28, 0, 0, 1, 5, 34
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\Register.css", "CSS", 0, 0, 0, 0, 48, 0, 0, 0, 7, 55
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\Task.css", "CSS", 0, 0, 0, 0, 74, 0, 0, 0, 14, 88
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\Tasks.css", "CSS", 0, 0, 0, 0, 16, 0, 0, 1, 4, 21
+"c:\Users\crist\Desktop\MERN-STACK\client\src\Styles\UpdateTaskForm.css", "CSS", 0, 0, 0, 0, 47, 0, 0, 0, 6, 53
+"c:\Users\crist\Desktop\MERN-STACK\client\src\index.css", "CSS", 0, 0, 0, 0, 12, 0, 0, 0, 1, 13
+"c:\Users\crist\Desktop\MERN-STACK\client\src\index.js", "JavaScript", 0, 12, 0, 0, 0, 0, 0, 3, 2, 17
+"c:\Users\crist\Desktop\MERN-STACK\client\src\logo.svg", "XML", 0, 0, 0, 0, 0, 1, 0, 0, 0, 1
+"c:\Users\crist\Desktop\MERN-STACK\client\src\pages\ForbiddenUserErrorPage.js", "JavaScript", 0, 11, 0, 0, 0, 0, 0, 0, 3, 14
+"c:\Users\crist\Desktop\MERN-STACK\client\src\pages\ForbiddenUserProjectErrorPage.js", "JavaScript", 0, 11, 0, 0, 0, 0, 0, 0, 3, 14
+"c:\Users\crist\Desktop\MERN-STACK\client\src\pages\Home.jsx", "JavaScript JSX", 0, 0, 58, 0, 0, 0, 0, 0, 13, 71
+"c:\Users\crist\Desktop\MERN-STACK\client\src\pages\Login.jsx", "JavaScript JSX", 0, 0, 83, 0, 0, 0, 0, 2, 13, 98
+"c:\Users\crist\Desktop\MERN-STACK\client\src\pages\NewProject.jsx", "JavaScript JSX", 0, 0, 107, 0, 0, 0, 0, 0, 13, 120
+"c:\Users\crist\Desktop\MERN-STACK\client\src\pages\NotFoundPage.js", "JavaScript", 0, 11, 0, 0, 0, 0, 0, 0, 3, 14
+"c:\Users\crist\Desktop\MERN-STACK\client\src\pages\ProjectDetails.jsx", "JavaScript JSX", 0, 0, 302, 0, 0, 0, 0, 1, 39, 342
+"c:\Users\crist\Desktop\MERN-STACK\client\src\pages\ProjectManagement.jsx", "JavaScript JSX", 0, 0, 1, 0, 0, 0, 0, 0, 3, 4
+"c:\Users\crist\Desktop\MERN-STACK\client\src\pages\ProjectPage.jsx", "JavaScript JSX", 0, 0, 100, 0, 0, 0, 0, 0, 16, 116
+"c:\Users\crist\Desktop\MERN-STACK\client\src\pages\Register.jsx", "JavaScript JSX", 0, 0, 99, 0, 0, 0, 0, 0, 8, 107
+"c:\Users\crist\Desktop\MERN-STACK\client\src\pages\Welcome.jsx", "JavaScript JSX", 0, 0, 10, 0, 0, 0, 0, 0, 2, 12
+"c:\Users\crist\Desktop\MERN-STACK\client\src\reportWebVitals.js", "JavaScript", 0, 12, 0, 0, 0, 0, 0, 0, 2, 14
+"c:\Users\crist\Desktop\MERN-STACK\client\src\setupTests.js", "JavaScript", 0, 1, 0, 0, 0, 0, 0, 4, 1, 6
+"c:\Users\crist\Desktop\MERN-STACK\config\allowedOrigins.js", "JavaScript", 0, 4, 0, 0, 0, 0, 0, 2, 1, 7
+"c:\Users\crist\Desktop\MERN-STACK\config\corsOptions.js", "JavaScript", 0, 13, 0, 0, 0, 0, 0, 3, 2, 18
+"c:\Users\crist\Desktop\MERN-STACK\config\dbConn.js", "JavaScript", 0, 9, 0, 0, 0, 0, 0, 0, 3, 12
+"c:\Users\crist\Desktop\MERN-STACK\controllers\notificationController.js", "JavaScript", 0, 132, 0, 0, 0, 0, 0, 5, 59, 196
+"c:\Users\crist\Desktop\MERN-STACK\controllers\projectController.js", "JavaScript", 0, 629, 0, 0, 0, 0, 0, 68, 199, 896
+"c:\Users\crist\Desktop\MERN-STACK\controllers\taskController.js", "JavaScript", 0, 304, 0, 0, 0, 0, 0, 50, 80, 434
+"c:\Users\crist\Desktop\MERN-STACK\controllers\usersController.js", "JavaScript", 0, 244, 0, 0, 0, 0, 0, 36, 71, 351
+"c:\Users\crist\Desktop\MERN-STACK\middleware\authMiddleware.js", "JavaScript", 0, 54, 0, 0, 0, 0, 0, 4, 11, 69
+"c:\Users\crist\Desktop\MERN-STACK\middleware\errorHandler.js", "JavaScript", 0, 9, 0, 0, 0, 0, 0, 1, 6, 16
+"c:\Users\crist\Desktop\MERN-STACK\middleware\logger.js", "JavaScript", 0, 23, 0, 0, 0, 0, 0, 3, 6, 32
+"c:\Users\crist\Desktop\MERN-STACK\middleware\projectAccess.js", "JavaScript", 0, 37, 0, 0, 0, 0, 0, 1, 12, 50
+"c:\Users\crist\Desktop\MERN-STACK\models\Attachment.js", "JavaScript", 0, 12, 0, 0, 0, 0, 0, 1, 3, 16
+"c:\Users\crist\Desktop\MERN-STACK\models\Note.js", "JavaScript", 0, 7, 0, 0, 0, 0, 0, 0, 4, 11
+"c:\Users\crist\Desktop\MERN-STACK\models\Notification.js", "JavaScript", 0, 15, 0, 0, 0, 0, 0, 0, 7, 22
+"c:\Users\crist\Desktop\MERN-STACK\models\Poll.js", "JavaScript", 0, 12, 0, 0, 0, 0, 0, 0, 4, 16
+"c:\Users\crist\Desktop\MERN-STACK\models\Project.js", "JavaScript", 0, 28, 0, 0, 0, 0, 0, 2, 9, 39
+"c:\Users\crist\Desktop\MERN-STACK\models\Task.js", "JavaScript", 0, 11, 0, 0, 0, 0, 0, 0, 7, 18
+"c:\Users\crist\Desktop\MERN-STACK\models\User.js", "JavaScript", 0, 17, 0, 0, 0, 0, 0, 0, 3, 20
+"c:\Users\crist\Desktop\MERN-STACK\package-lock.json", "JSON", 0, 0, 0, 1917, 0, 0, 0, 0, 1, 1918
+"c:\Users\crist\Desktop\MERN-STACK\package.json", "JSON", 0, 0, 0, 31, 0, 0, 0, 0, 1, 32
+"c:\Users\crist\Desktop\MERN-STACK\public\css\style.css", "CSS", 0, 0, 0, 0, 18, 0, 0, 0, 3, 21
+"c:\Users\crist\Desktop\MERN-STACK\routes\projectRoutes.js", "JavaScript", 0, 45, 0, 0, 0, 0, 0, 8, 17, 70
+"c:\Users\crist\Desktop\MERN-STACK\routes\root.js", "JavaScript", 0, 7, 0, 0, 0, 0, 0, 0, 3, 10
+"c:\Users\crist\Desktop\MERN-STACK\routes\userRoutes.js", "JavaScript", 0, 28, 0, 0, 0, 0, 0, 1, 9, 38
+"c:\Users\crist\Desktop\MERN-STACK\server.js", "JavaScript", 0, 30, 0, 0, 0, 0, 0, 45, 11, 86
+"c:\Users\crist\Desktop\MERN-STACK\test.jsx", "JavaScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 1, 1
+"c:\Users\crist\Desktop\MERN-STACK\utilities\activityLog.js", "JavaScript", 0, 16, 0, 0, 0, 0, 0, 1, 6, 23
+"c:\Users\crist\Desktop\MERN-STACK\utilities\cleanupExpiredNotifications.js", "JavaScript", 0, 23, 0, 0, 0, 0, 0, 2, 6, 31
+"c:\Users\crist\Desktop\MERN-STACK\utilities\jwt.js", "JavaScript", 0, 18, 0, 0, 0, 0, 0, 0, 3, 21
+"c:\Users\crist\Desktop\MERN-STACK\utilities\regexCheck.js", "JavaScript", 0, 10, 0, 0, 0, 0, 0, 1, 2, 13
+"c:\Users\crist\Desktop\MERN-STACK\views\404.html", "HTML", 13, 0, 0, 0, 0, 0, 0, 0, 0, 13
+"c:\Users\crist\Desktop\MERN-STACK\views\index.html", "HTML", 39, 0, 0, 0, 0, 0, 0, 0, 0, 39
+"c:\Users\crist\Desktop\MERN-STACK\views\login.html", "HTML", 61, 0, 0, 0, 0, 0, 0, 0, 1, 62
+"c:\Users\crist\Desktop\MERN-STACK\views\newProject.html", "HTML", 57, 0, 0, 0, 0, 0, 0, 0, 12, 69
+"c:\Users\crist\Desktop\MERN-STACK\views\notYourWorkspace.html", "HTML", 51, 0, 0, 0, 0, 0, 0, 0, 2, 53
+"c:\Users\crist\Desktop\MERN-STACK\views\register.html", "HTML", 59, 0, 0, 0, 0, 0, 0, 0, 0, 59
+"Total", "-", 300, 2688, 760, 19622, 1284, 1, 38, 294, 1114, 26101

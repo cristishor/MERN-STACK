@@ -32,7 +32,6 @@ const projectAccess = asyncHandler(async (req, res, next) => {
           const isProjectManager = project.projectManagers.some((manager) => manager.equals(userId));
           req.userRole = isProjectManager ? 'manager' : 'regular';
         }
-
         next();
 
       } else {

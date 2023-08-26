@@ -1,14 +1,13 @@
 .notes-section {
   width: 100%;
-  max-width: calc(100% - 40px);
-  margin: 0;
-  padding: 10px; /* Adjust padding as needed */
-  background-color: #ffffff;
+  max-width: 400px; /* Set a max width for the notes section */
+  background-color: #f9f9f9;
   border: 1px solid #d1d1d1;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   margin-bottom: 10px;
-  /* ... other styles */
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .notes-section h2 {
@@ -130,4 +129,16 @@
 
 .note:hover .note-buttons {
   display: flex; /* Show the buttons when hovering over the note */
+}
+
+.authorless-note {
+  border: 1px solid #ff0000; /* Red border for authorless notes */
+  background-color: #ffe5e5; /* Light red background for authorless notes */
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+.authorless-note-info {
+  font-size: 0.9rem;
+  color: #888;
 }

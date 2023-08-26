@@ -1,0 +1,151 @@
+ .project-details-container {
+    max-width: 800px;
+    width: 100%;
+    background-color: #ffffff;
+    align-content: center;
+  }
+  
+  .title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .title-bar h2 {
+    font-size: 24px;
+  }
+  
+  .go-back-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+  
+  .description {
+    font-style: italic;
+    margin-bottom: 20px;
+  }
+  
+  .creation-date {
+    margin-bottom: 10px;
+  }
+  
+  .closing-date {
+    margin-bottom: 10px;
+  }
+  
+  .status {
+    font-weight: bold;
+    color: #007bff;
+    margin-bottom: 20px;
+  }
+  
+  .members-list {
+    margin-top: 20px;
+  }
+  
+  .member-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .member-circle {
+    width: 30px;
+    height: 30px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 10px;
+  }
+  
+  /* Add more styles as needed */
+  .leave-project-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .leave-project-button:hover {
+    background-color: #c82333;
+  }
+  
+  .leave-project-button:focus {
+    outline: none;
+  }
+
+  .confirm-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .confirm-button,
+  .cancel-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  .confirm-button:hover,
+  .cancel-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .confirm-button:focus,
+  .cancel-button:focus {
+    outline: none;
+  }
+
+  .leave-error {
+    color: #dc3545;
+    margin-left: 10px;
+    font-size: 14px;
+  }
+
+  .add-member-form {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+  }
+  
+  .add-member-form input {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+  
+  .submit-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .notification {
+    margin-top: 10px;
+    color: green; /* Adjust the color as needed */
+  }  

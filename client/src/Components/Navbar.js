@@ -20,7 +20,7 @@ const Navbar = ({ userId }) => {
 
         const unseenCount = fetchedData.notifications.filter(notification => !notification.seen).length;
         setUnseenNotifications(unseenCount);
-        console.log(unseenCount)
+
       })
       .catch((error) => { 
         console.error("Error fetching notifications:", error);
@@ -53,6 +53,8 @@ const Navbar = ({ userId }) => {
 
     const notifications = await fetchNotifications();
     setFetchedData(notifications);
+    const unseenCount = fetchedData.notifications.filter(notification => !notification.seen).length;
+    setUnseenNotifications(unseenCount);
   };
 
   const markNotificationAsSeen = async (notifId) => {

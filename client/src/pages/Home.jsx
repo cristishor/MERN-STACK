@@ -5,6 +5,7 @@ import axios from "axios";
 import Navbar from "../Components/Navbar";
 import Projects from "../Components/Projects";
 import Tasks from "../Components/Tasks";
+import ForbiddenUserErrorPage from "./ForbiddenUserErrorPage"
 
 import "../Styles/Home.css";
 
@@ -31,7 +32,7 @@ const Home = () => {
           if (status === 401 && data.errorCode === "NEEDS_LOGIN") {
             navigate("/login");
           } else if (status === 403 && data.errorCode === "FORBIDDEN_USER") {
-            setError("You are not authorized to access this workspace.");
+            setError("FORBIDDEN_USER");
           }
         }
       });
@@ -44,7 +45,11 @@ const Home = () => {
   }
 
   if (error) {
+    if (error === "FORBIDDEN_USER") {
+      return <ForbiddenUserErrorPage/>
+    } else {
     return <div>{error}</div>;
+    }
   }
 
   return (
@@ -55,7 +60,7 @@ const Home = () => {
         <Projects userId={userId} projects={userData?.projectsInvolved} />
         </div>
         <div className="tasks-content">
-        <Tasks tasks={userData?.tasks} />
+        <Tasks tasks={userData?.tasks}/>
         </div>
       </div>
     </div>

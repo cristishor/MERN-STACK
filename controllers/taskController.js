@@ -317,6 +317,7 @@ const updateTask = asyncHandler(async (req, res) => {
     if ((targetTask.status === 'urgent' || targetTask.status === 'in_progress') && status === 'completed' ) {
         targetTask.status = status
         targetTask.deadline = null
+        targetTask.assignee = null
 
         const dependentTask = await Task.findOne({ dependent: targetTaskId })
         if (dependentTask) {
@@ -357,16 +358,6 @@ const updateTask = asyncHandler(async (req, res) => {
   
 
   await targetTask.save();
-
-  // Send notification to the assignee with the updates
-  if (assignee) {
-    const titleNew = 'Your task has been updated!';
-    const bodyNew = `${targetTask.title} has been updated. Latest status: ${targetTask.status}`;
-
-    // Pass the notification data to the createNotification controller
-    req.body = { targetUserId: targetTask.assignee, title: titleNew, body: bodyNew };
-    await createNotification(req);
-  }
 
   // Activity log
   const user = await User.findById(userId).select('firstName lastName').exec();
@@ -429,6 +420,15 @@ const deleteTask = asyncHandler(async (req, res) => {
   res.status(200).json({ message: 'Task deleted successfully' });
 });
 
+const findProjectOfTask = asyncHandler(async (req, res) => {
+  const targetTaskId = req.params.taskId
+
+  const project = await Project.findOne({ tasks: { $elemMatch: { _id: targetTaskId } } }).exec();
+
+  const projId = project._id
+  res.status(200).json({projId})
+})
+
 
 module.exports = { 
     createNote,
@@ -438,5 +438,6 @@ module.exports = {
     createTask,
     getTasks,
     updateTask,
-    deleteTask
+    deleteTask,
+    findProjectOfTask
 };
