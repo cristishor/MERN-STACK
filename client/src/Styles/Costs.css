@@ -1,0 +1,29 @@
+.costs-card {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .display-section,
+  .editing-section {
+    display: flex;
+    align-items: center;
+  }
+  
+  .edit-form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  input {
+    margin-bottom: 5px;
+    padding: 5px;
+  }
+  
+  button {
+    margin-top: 5px;
+  }
+  

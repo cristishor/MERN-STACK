@@ -230,7 +230,7 @@ const getTasks = asyncHandler(async (req, res) => {
   const projId = req.projId;
 
   // Fetch the project with populated tasks
-  const project = await Project.findById(projId).populate({
+  const project = await Project.findById(projId).select('tasks').populate({
     path: 'tasks',
     populate: [
       { path: 'assignee', select: 'firstName lastName' },
@@ -336,11 +336,10 @@ const updateTask = asyncHandler(async (req, res) => {
       }
   }
   if(assignee) {
-    targetTask.assignee = assignee;
-  } else if (assignee === '') {
-    targetTask.assignee = undefined
-  }
-  if (assignee) {
+    targetTask.assignee = assignee
+    const assigneeUser = await User.findById(assignee).select('firstName lastName')
+    const assigneeName = `${assigneeUser.firstName} + ${assigneeUser.lastName}`;
+
     // Send notification to the assignee
     const title = 'You have been given a new task!';
     const body = `You have been assigned a new task on the ${project.title}: ${targetTask.title}`;
@@ -348,7 +347,10 @@ const updateTask = asyncHandler(async (req, res) => {
     // Pass the notification data to the createNotification controller
     req.body = { targetUserId: assignee, title, body };
     await createNotification(req);
+  } else if (assignee === '') {
+    targetTask.assignee = undefined
   }
+
   if (dependent) {
     targetTask.dependent = dependent;
   } else {

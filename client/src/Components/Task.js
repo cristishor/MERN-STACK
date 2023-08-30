@@ -80,16 +80,45 @@ const Task = ({ task, userId, projId, userRole, onDataRefresh }) => {
 
   const statusClassName = getStatusClassName();
 
+  const options = {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric'
+  };
+  
+  // Format the date using the Intl.DateTimeFormat object
+  let formattedDeadline
+ if (task.deadline) {
+  const deadlineDate = new Date(task.deadline)
+  formattedDeadline = new Intl.DateTimeFormat('en-US', options).format(deadlineDate);
+ }
+
+ const updateDate = new Date(task.updatedAt)
+ const formatedUpdatedAt = new Intl.DateTimeFormat('en-US', options).format(updateDate);
+
+ let formatedStatus
+ if(task.status === 'in_progress') {
+  formatedStatus = 'In progress'
+ } else if (task.status === 'completed') {
+  formatedStatus = 'Completed'
+ } else {
+  formatedStatus = 'Upcoming'
+ }
+  
+
   return (
     <div>
       <div className={`task ${statusClassName}`} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
         <h4>{task.title}</h4>
         {task.description && <p>Description: {task.description}</p>}
-        {task.deadline && <p>Deadline: {task.deadline}</p>}
+        {task.deadline && <p>Deadline: {formattedDeadline}</p>}
         {task.assignee && <p>Assignee: {task.assignee}</p>}
 
-        <p>Status: {task.status}</p>
-        <p className="lastUpdated">Last updated:{task.updatedAt}</p>
+
+        <p>Status: {formatedStatus}</p>
+        <p className="lastUpdated">Last updated: {formatedUpdatedAt}</p>
 
         {userRole === "manager" || userRole === "owner" ? (
           showButtons && (

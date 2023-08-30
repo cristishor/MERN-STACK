@@ -296,13 +296,13 @@ const getProjectManagerData = asyncHandler(async (req, res) => {
       .select('budget expenses activityLog tasks')
       .populate({
           path: 'tasks',
-          select: 'title deadline',
+          select: 'title deadline createdAt',
           match: { deadline: { $ne: null } }, // Only tasks with deadlines
           options: { sort: { deadline: 1 } }, // Sort by deadline in ascending order
       })
       .exec();
 
-  res.status(200).json({ project });
+  res.status(200).json({ project, userRole: req.userRole });
 
 });
 
@@ -697,11 +697,7 @@ const createExpense = asyncHandler(async (req, res) => {
 
   // If taskReference is provided, find the task and add its title to the expense
   if (taskReference) {
-    const task = await Task.findById(taskReference);
-    if (!task) {
-      return res.status(404).json({ message: 'Task not found' });
-    }
-    newExpense.taskReference = task.title;
+    newExpense.taskReference = taskReference;
   }
 
   // Add the new expense to the project's expenses array

@@ -1,0 +1,156 @@
+.back-to-project-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px; /* Adjust the padding to control the button size */
+  cursor: pointer;
+  font-size: 14px; /* Adjust the font size */
+  border-radius: 5px;
+  position: absolute;
+  top: 100px; /* Adjust the top position to position the button */
+  right: 20px; /* Adjust the left position to position the button */
+  gap: 30px;
+  width: 100px;
+}
+
+.back-to-project-button:hover {
+  background-color: #0056b3;
+}
+
+
+.activity-log-container {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-log-title {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.activity-log-content {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.activity-log-entry {
+  margin-bottom: 15px;
+}
+
+.activity-type {
+  font-weight: bold;
+}
+
+.toggle-activity-log-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 5px;
+  align-self: center;
+  margin-top: 10px;
+}
+
+.toggle-activity-log-button:hover {
+  background-color: #0056b3;
+}
+
+.project-management-page {
+  padding: 20px;
+}
+
+.content-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.back-to-project-button {
+  padding: 5px 10px;
+  background-color: #f0f0f0;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.activity-log-container,
+.expenses-budget-container,
+.gantt-diagram-container {
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+.activity-log-title,
+.expenses-budget-title,
+.gantt-diagram-title {
+  margin: 0;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.toggle-activity-log-button {
+  margin-top: 10px;
+  background-color: #f0f0f0;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* Add this CSS to your existing stylesheet */
+
+/* Budget Controls */
+.budget-controls {
+margin-top: 20px;
+}
+
+.set-budget-button, .reset-budget-button {
+margin-right: 10px;
+padding: 5px 10px;
+background-color: #007bff;
+color: white;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+}
+
+/* Budget Status */
+.budget-status {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-top: 20px;
+padding: 10px;
+border: 1px solid #ccc;
+border-radius: 5px;
+}
+
+.total-cost {
+font-size: 16px;
+font-weight: bold;
+}
+
+.budget-info {
+font-size: 16px;
+font-weight: bold;
+}
+
+/* Apply color logic based on budget */
+.budget-green {
+color: green;
+}
+
+.budget-ok {
+color: yellow;
+}
+
+.budget-red {
+color: red;
+}

@@ -9,7 +9,7 @@ import NewProject from './pages/NewProject'
 import ProjectPage from "./pages/ProjectPage"
 import NotFoundPage from "./pages/NotFoundPage"
 import ProjectDetails from "./pages/ProjectDetails"
-//import ProjectManagement from "./pages/ProjectManagement"
+import ProjectManagement from "./pages/ProjectManagement"
 
 function App() {
   return (
@@ -24,6 +24,7 @@ function App() {
         <Route path="/p/:projId/:userId" element={<ProjectPage/>} />
 
         <Route path="/p-info/:projId/:userId" element={<ProjectDetails/>} />
+        <Route path="/p-man/:projId/:userId" element={<ProjectManagement/>} />
 
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

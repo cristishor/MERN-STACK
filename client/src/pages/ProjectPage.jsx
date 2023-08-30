@@ -27,7 +27,6 @@ const ProjectPage = () => {
       .then((response) => {
         setProjData(response.data);
         setIsLoading(false);
-        console.log("data:? ", response.data)
       })
       .catch((error) => {
         setIsLoading(false);

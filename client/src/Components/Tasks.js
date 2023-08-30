@@ -4,6 +4,21 @@ import "../Styles/Tasks.css"
 const Tasks = ({ tasks }) => {
 
 
+  const formatDeadline = (deadline) => {
+    if (!deadline) {
+      return "No deadline";
+    }
+    const deadlineDate = new Date(deadline);
+    const options = {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric'
+    };
+    return new Intl.DateTimeFormat('en-US', options).format(deadlineDate);
+  };
+
   return (
     <div className="tasks-component">
       <h2>Tasks</h2>
@@ -11,7 +26,7 @@ const Tasks = ({ tasks }) => {
         {tasks.map((task) => (
           <li key={task._id} className="task-item" >
             <h3>{task.title}</h3>
-            <p>Deadline: {task.deadline}</p>
+            <p>Deadline: {formatDeadline(task.deadline)}</p>
             <p>Description: {task.description}</p>
           </li>
         ))}
