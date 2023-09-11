@@ -1,61 +1,54 @@
+/* Styles for the page container */
 .page-container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh; /* Adjust to fill the viewport height */
-  }
-  
-  .content-container {
-    display: flex;
-    flex: 1;
-    max-width: 100%;
-    overflow: hidden; /* Prevent overflow from affecting layout */
-  }
-  
-  
-  .tasks-section {
-    flex: 1;
-    overflow: auto; /* Enable vertical scrolling if necessary */
-  }
-  
-  .top-section {
-    display: flex; /* Use Flexbox */
-    align-items: center; /* Center items vertically */
-    padding: 10px 20px; /* Add padding for spacing */
-    gap: 40px;
-  }
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Ensure full viewport height */
+}
 
-  .add-task-button {
-    background-color: #007bff; /* Blue color */
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 16px;
-    font-size: 14px;
-    width: 120px; /* Fixed width */
-    height: 40px; /* Fixed height */
-    cursor: pointer;
-  }
-  
-  .add-task-button:hover {
-    background-color: #0056b3; /* Darker blue color on hover */
-  }
+/* Styles for the notes and tasks sections */
+.content-container {
+  display: grid;
+  grid-template-columns: 1fr 3fr; /* 1/4 and 3/4 widths */
 
-  .project-button,
+}
+/* Styles for the notes section (1/4 width) */
+.notes-section {
+  flex: 1;
+  background-color: #f0f0f0;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* Styles for the tasks section (3/4 width) */
+.tasks-section {
+  flex: 3;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* Styles for buttons in the tasks section */
+.project-button,
 .project-management-button,
 .add-task-button {
+  display: block;
+  margin-top: 10px;
+  padding: 10px 20px;
   background-color: #007bff;
   color: white;
   border: none;
   border-radius: 4px;
-  padding: 8px 12px;
-  font-size: 14px;
   cursor: pointer;
+  font-size: 16px;
 }
 
-.project-button {
-  margin-right: 10px; /* Adjust margin as needed */
+/* Hover effect for buttons */
+.project-button:hover,
+.project-management-button:hover,
+.add-task-button:hover {
+  background-color: #0056b3;
 }
 
-.add-task-button {
-  margin-left: 10px; /* Adjust margin as needed */
+/* Additional styles for button placement, if needed */
+.project-management-button {
+  margin-right: 10px;
 }

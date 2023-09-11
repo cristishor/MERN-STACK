@@ -25,7 +25,8 @@ const Tasks = ({ tasks }) => {
       <ul className="task-list">
         {tasks.map((task) => (
           <li key={task._id} className="task-item" >
-            <h3>{task.title}</h3>
+            <h2>{task.title}</h2>
+            <p>Status: {task.status}</p>
             <p>Deadline: {formatDeadline(task.deadline)}</p>
             <p>Description: {task.description}</p>
           </li>

@@ -237,10 +237,11 @@ const ProjectDetails = () => {
     <div>
       <Navbar userId={userId} />
       <div className="project-details-container">
-        <div className="title-bar">
-          <button className="go-back-button" onClick={handleGoBack}>
+      <button className="go-back-button" onClick={handleGoBack}>
             Go Back
-          </button>        
+          </button> 
+        <div className="title-bar">
+                 
           <div className="title-section">
           {isEditingTitle ? (
             <div>
@@ -251,7 +252,7 @@ const ProjectDetails = () => {
               />
               <button className="save-button" onClick={handleTitleSave}>Save</button>
             </div>
-          ) : ( (editedTitle ? (<h2>{editedTitle}</h2>) : (<h2>{title}</h2>)) )}
+          ) : ( (editedTitle ? (<h1>{editedTitle}</h1>) : (<h1>{title}</h1>)) )}
           {userRole === "owner" && (
             <button className="edit-button" onClick={handleTitleEditToggle}>Edit</button>
           )}

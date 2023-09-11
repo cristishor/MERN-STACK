@@ -52,6 +52,12 @@
   color: white;
   cursor: pointer;
   border-radius: 4px;
+  flex-shrink: 0; /* Prevent button from shrinking */
+}
+
+/* If necessary, you can adjust the width of the button here */
+.seen-button {
+  width: 120px; /* Adjust as needed */
 }
 
 .notification-time {

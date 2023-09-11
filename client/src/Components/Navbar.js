@@ -45,7 +45,11 @@ const Navbar = ({ userId }) => {
     } catch (error) {
       console.error("Error during logout:", error);
     }
-    navigate("/");
+    navigate("/login");
+  }
+
+  const navProfile = () => {
+    navigate(`/home/profile/${userId}`)
   }
 
   const handleNotificationToggle = async () => {
@@ -102,7 +106,7 @@ const Navbar = ({ userId }) => {
         <button className="navbar-button" onClick={handleNotificationToggle}>
           Notifications {unseenNotifications > 0 && <span className="notification-count">{unseenNotifications}</span>}
         </button>
-        <button className="navbar-button">Edit Profile</button>
+        <button className="navbar-button" onClick={navProfile}>Edit Profile</button>
         <button className="navbar-button" onClick={handleLogout}>
           Logout
         </button>

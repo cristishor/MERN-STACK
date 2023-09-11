@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from "axios"
-import { Gantt } from 'gantt-task-react';
+import { Gantt, DisplayOption } from 'gantt-task-react';
+import "../styles/Gantt.css";
 
 import Navbar from '../Components/Navbar';
 import Costs from '../Components/Costs';
@@ -160,21 +161,48 @@ const handleSetBudget = async () => {
     })
   }
 
-  const ganttTasks = projectData.tasks.map(task => ({
-    id: task._id, // Assuming _id is the task ID
-    start:  new Date(task.createdAt), // Specify the start date
-    end:  new Date(task.deadline), // Specify the end date
-    name: task.title // Specify the task name
-  }));
+  const ganttTasks = projectData.tasks.map(task => {
+
+    const start = task.dependent && task.dependent.deadline ? new Date(task.dependent.deadline) : new Date(task.createdAt);
+  
+    return {
+      id: task._id,
+      start: start,
+      end: new Date(task.deadline),
+      name: task.title
+    };
+  });
+  
+  const DisplayOption = {
+    headerHeight: 60, // Increase header height for date labels
+    ganttHeight: 400,
+    columnWidth: 30,
+    listCellWidth: 'auto', // Let it adjust dynamically
+    rowHeight: 40,
+    barCornerRadius: 5,
+    barFill: 100,
+    handleWidth: 10,
+    fontFamily: 'Arial, sans-serif',
+    fontSize: '14px',
+    barProgressColor: '#4CAF50',
+    barProgressSelectedColor: '#2196F3',
+    barBackgroundColor: '#FFFFFF', // Update task bar background color
+    barBackgroundSelectedColor: '#DDD',
+    arrowColor: '#FF5722',
+    arrowIndent: 5,
+    todayColor: '#FFC107',
+  };
+  
 
   return (
+    <div>
+    <Navbar userId={userId} />
     <div className="project-management-page">
-      <Navbar userId={userId} />
       <div className="content-container">
       <button className="back-to-project-button" onClick={handleBackToProject}>Back to Project</button>
-
+      
       <div className="gantt-diagram-container">
-        <Gantt tasks={ganttTasks} />
+        <Gantt tasks={ganttTasks} DisplayOption={DisplayOption}/>
       </div>
         
         {/* Activity Log */}
@@ -243,7 +271,7 @@ const handleSetBudget = async () => {
             />
             <input
               type="text"
-              placeholder="Task Reference"
+              placeholder="Description / Refference"
               value={newExpenseTaskReference}
               onChange={(e) => setNewExpenseTaskReference(e.target.value)}
             />
@@ -261,6 +289,7 @@ const handleSetBudget = async () => {
       </div>
 
         </div>
+    </div>
     </div>
   );
 };

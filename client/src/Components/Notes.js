@@ -84,7 +84,21 @@ const handleDeleteNote = async (noteId) => {
     setError("Error deleting note");
   }
 }
+const options = {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  hour: 'numeric',
+  minute: 'numeric'
+};
 
+const dateFormat = (date) => { 
+
+  const fdate = new Date(date)
+
+  const formattedDate = new Intl.DateTimeFormat('en-US', options).format(fdate);
+  return formattedDate
+}
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -130,7 +144,7 @@ const handleDeleteNote = async (noteId) => {
             {note.createdBy._id === userId ? (
             <span className="me-text">Me</span>) : (`${note.createdBy.firstName} ${note.createdBy.lastName}`)}
           </p>
-          <p>Created at: {note.createdAt}</p>
+          <p>Created at: {dateFormat(note.createdAt)}</p>
 
           {note.createdBy._id === userId && (
             <div className="note-buttons">

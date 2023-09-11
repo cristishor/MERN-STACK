@@ -20,7 +20,7 @@ router.route('/login')
 router.route('/:userId/logout')
   .post(authMiddleware)
 
-router.delete('/:userId/logout', authMiddleware)  //the authMiddleware handle the logout
+router.delete('/:userId/logout', authMiddleware)  //the authMiddleware handles the logout
  
 router.route('/:userId')
   .get(authMiddleware, usersController.getUser)

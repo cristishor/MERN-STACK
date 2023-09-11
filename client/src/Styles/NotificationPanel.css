@@ -63,22 +63,6 @@
   margin-bottom: 10px;
 }
 
-.mark-as-seen-button,
-.notification-seen-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  transition: background-color 0.3s ease;
-}
-
-.mark-as-seen-button:hover,
-.notification-seen-button:hover {
-  background-color: #f2f8ff;
-}
-
 .proposal-buttons {
   display: flex;
   gap: 10px;

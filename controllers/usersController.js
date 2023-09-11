@@ -50,17 +50,16 @@ const createNewUser = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: 'Invalid email format.' });
       }
     
+
+
     if (!checkPasswordFormat(password)) {
         return res.status(400).json({ message: 'Invalid password format.' });
       }
 
     // Check for duplicate
 
-        const duplicateEmail = await User.findOne ({ email }).lean().exec() // if you pass something in (unlike find) call exec() at end
-
-        if(duplicateEmail) {
-             return res.status(409).json({ message: 'Duplicate email'})
-        }
+        const duplicateEmail = await User.findOne ({ email }).lean().exec() 
+        if(duplicateEmail) { return res.status(409).json({ message: 'Duplicate email'}) }
 
 
     //Hash password
@@ -95,9 +94,7 @@ const logInUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   const tokenAlready = req.cookies.jwt;
-
   if (tokenAlready) {
-    // Decode the token to get user information
     const decoded = verifyToken(tokenAlready);
 
     if (decoded) {
@@ -131,15 +128,13 @@ const logInUser = asyncHandler(async (req, res) => {
     email: user.email,
     firstName: user.firstName,
     lastName: user.lastName,
-    // Add any other necessary fields to the payload
   };
-
   const token = createToken(payload);
   
    res.cookie('jwt', token, {
-    httpOnly: true, // Cookie cannot be accessed via JavaScript
-    maxAge: 24 * 60 * 60 * 1000, // Token will expire in 1 day (milliseconds)
-    secure: true, // Set to true if using HTTPS
+    httpOnly: true,                         // Cookie cannot be accessed via JavaScript
+    maxAge: 24 * 60 * 60 * 1000,                    // Token will expire in 1 day (milliseconds)
+    secure: true,                       // Set to true if using HTTPS
   });
 
   // Return the token in the response

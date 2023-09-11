@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "../Styles/Register.css"; // Import your CSS stylesheet for additional styling
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +14,7 @@ const Register = () => {
     address: "", // New field for address
   });
 
+  const navigate = useNavigate()
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
@@ -31,6 +32,7 @@ const Register = () => {
     try {
       const response = await axios.post("/api/users/register", formData);
       console.log(response.data);
+      navigate("/login");
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) {
         console.log("Error message from server:", error.response.data.message);
@@ -62,21 +64,18 @@ const Register = () => {
             required
           />
           <input
-            type="text"
             name="firstName"
             placeholder="First Name"
             onChange={handleChange}
             required
           />
           <input
-            type="text"
             name="lastName"
             placeholder="Last Name"
             onChange={handleChange}
             required
           />
           <input
-            type="text"
             name="profilePicture"
             placeholder="Profile Picture URL"
             onChange={handleChange}
@@ -88,7 +87,6 @@ const Register = () => {
             onChange={handleChange}
           />
           <input
-            type="text"
             name="address"
             placeholder="Address"
             onChange={handleChange}
@@ -96,7 +94,7 @@ const Register = () => {
           {error && <p className="error-message">{error}</p>}
           <button type="submit">Register</button>
         </form>
-        <p className="login-link">Already have an account? <a href="/login">Log in</a></p> {/* Login link */}
+        <p className="login-link">Already have an account? <a href="/login">Log in</a></p>
       </div>
       <div className="background-image"></div> {/* Background image */}
     </div>

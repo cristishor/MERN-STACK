@@ -13,6 +13,18 @@
   width: 100px;
 }
 
+.back-to-project-button {
+  position: absolute;
+  top: 10px; /* Adjust the top position as needed */
+  left: 150px; /* Adjust the left position as needed */
+  z-index: 1000; /* Set a higher z-index value */
+  color: #333;
+  border: 1px solid white;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
 .back-to-project-button:hover {
   background-color: #0056b3;
 }

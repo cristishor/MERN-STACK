@@ -10,6 +10,7 @@ import ProjectPage from "./pages/ProjectPage"
 import NotFoundPage from "./pages/NotFoundPage"
 import ProjectDetails from "./pages/ProjectDetails"
 import ProjectManagement from "./pages/ProjectManagement"
+import EditProfile from "./pages/EditProfile";
 
 function App() {
   return (
@@ -19,6 +20,8 @@ function App() {
         <Route path="/register" element={<Register></Register>} />
         <Route path="/login" element={<Login></Login>} />
         <Route path="/home/:userId" element={<Home/>} />
+        <Route path="/home/profile/:userId" element={<EditProfile/>} />
+
 
         <Route path="/new-project/:userId" element={<NewProject/>} />
         <Route path="/p/:projId/:userId" element={<ProjectPage/>} />

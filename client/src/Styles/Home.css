@@ -1,6 +1,7 @@
 /* Home.css */
 .projects-content {
   overflow-y: auto;
+  display:contents;
 }
 /* Hide scrollbar when not needed */
 .projects-content::-webkit-scrollbar {

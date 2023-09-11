@@ -9,11 +9,10 @@ const authMiddleware = require('../middleware/authMiddleware')
 const projectAccess = require('../middleware/projectAccess')
 
 
-// create Project
+
 router.route('/new/:userId')
   .post(authMiddleware, projectController.createProject)
 
-// get Project
 router.route('/:projectId/:userId')
   .get(authMiddleware, projectAccess, projectController.getProject)
   .put(authMiddleware, projectAccess, projectController.updateProject)
@@ -24,7 +23,6 @@ router.route('/:projectId/:userId/userInfo')
   .post(authMiddleware, projectAccess, projectController.getUserProjectData)
 router.route('/:projectId/:userId/managerInfo')
   .get(authMiddleware, projectAccess, projectController.getProjectManagerData)
-
 
 // update Owner
 router.route('/:projectId/:userId/owner')

@@ -88,13 +88,22 @@ const getProject = asyncHandler(async (req, res) => {
 
   const project = await Project.findById(projId)
   .select('tasks title notes authorlessNotes -_id')
-  .populate('tasks notes authorlessNotes')
+  .populate({
+    path:'tasks',
+    populate: {
+      path: 'assignee',
+      select: 'firstName lastName',
+    },
+  })
+  .populate('notes authorlessNotes')
+
 
   if (!project) {
       return res.status(404).json({ message: 'Project not found' });
   }
 
   const tasks = project.tasks;
+  
 
   const independentTasks = tasks.filter(task =>
     !tasks.some(otherTask => otherTask.dependent && otherTask.dependent.equals(task._id))
@@ -296,9 +305,10 @@ const getProjectManagerData = asyncHandler(async (req, res) => {
       .select('budget expenses activityLog tasks')
       .populate({
           path: 'tasks',
-          select: 'title deadline createdAt',
+          select: 'title deadline createdAt dependent',
           match: { deadline: { $ne: null } }, // Only tasks with deadlines
           options: { sort: { deadline: 1 } }, // Sort by deadline in ascending order
+          populate: { path: 'dependent' },
       })
       .exec();
 

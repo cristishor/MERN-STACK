@@ -103,9 +103,12 @@ const Task = ({ task, userId, projId, userRole, onDataRefresh }) => {
   formatedStatus = 'In progress'
  } else if (task.status === 'completed') {
   formatedStatus = 'Completed'
+ } else if (task.status === 'urgent') {
+  formatedStatus = 'Urgent'
  } else {
   formatedStatus = 'Upcoming'
  }
+  
   
 
   return (
@@ -114,7 +117,7 @@ const Task = ({ task, userId, projId, userRole, onDataRefresh }) => {
         <h4>{task.title}</h4>
         {task.description && <p>Description: {task.description}</p>}
         {task.deadline && <p>Deadline: {formattedDeadline}</p>}
-        {task.assignee && <p>Assignee: {task.assignee}</p>}
+        {task.assignee && <p>Assignee: {task.assignee.firstName} {task.assignee.lastName}</p>}
 
 
         <p>Status: {formatedStatus}</p>

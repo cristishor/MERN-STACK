@@ -8,10 +8,32 @@
   }
   
   .display-section,
-  .editing-section {
-    display: flex;
-    align-items: center;
-  }
+.editing-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Add spacing between items */
+  margin-bottom: 10px; /* Add vertical spacing between sections */
+}
+.expense-cost {
+  margin-right: 20px; /* Adjust the margin as needed */
+}
+/* Add more spacing to the 1st and 3rd paragraphs */
+.display-section p:first-child {
+  margin-right: 40px; /* Adjust the right margin as needed */
+}
+
+.display-section p:nth-child(3) {
+  margin-right: 40px; /* Adjust the right margin as needed */
+}
+
+button {
+  margin-top: 5px;
+}
+
+/* Optional: Increase spacing for buttons */
+button + button {
+  margin-left: 10px; /* Add horizontal spacing between buttons */
+}
   
   .edit-form {
     display: flex;
@@ -21,9 +43,5 @@
   input {
     margin-bottom: 5px;
     padding: 5px;
-  }
-  
-  button {
-    margin-top: 5px;
   }
   

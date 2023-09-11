@@ -91,8 +91,8 @@ const Costs = ({ expense, expenseIndex, onEdit, userId, projId }) => {
           ) : (
             <div className="display-section">
               <p>{expense.expenseName}</p>
-              <p>{expense.cost}</p>
-              <p>{expense.taskReference}</p>
+              <p className="expense-cost">{expense.cost}</p>
+              {expense.taskReference && <p>{expense.taskReference}</p>}
               <button onClick={() => setIsEditing(true)}>Edit</button>
               <button onClick={handleDelete} disabled={isDeleting}>
                 {isDeleting ? "Deleting..." : "Delete"}

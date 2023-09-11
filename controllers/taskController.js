@@ -395,10 +395,9 @@ const deleteTask = asyncHandler(async (req, res) => {
 
   // Check if the task has any dependencies (is a dependent)
   if (taskToDelete.dependent) {
-    // Find a task that depends on the taskToDelete
+
     const dependentTask = project.tasks.find(task => task.dependent && task.dependent.equals(targetTaskId));
 
-    // Update the dependent task's dependency
     if (dependentTask) {
       dependentTask.dependent = taskToDelete.dependent;
       await dependentTask.save();
